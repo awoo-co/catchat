@@ -129,3 +129,8 @@ function addMessageToListDOM(text, member) {
     el.scrollTop = el.scrollHeight - el.clientHeight;
   }
 }
+
+
+if ("return".includes(key)) {
+  document.getElementById(key).play(ding.mp3);
+}
