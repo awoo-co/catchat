@@ -45,7 +45,8 @@
       padding: 10px 15px;
       font-size: 16px;
     background-color:#2200ff;
-    }
+  color: white;  
+  }
     .message-form__button {
       margin: 10px;
     }
