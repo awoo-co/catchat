@@ -130,7 +130,3 @@ function addMessageToListDOM(text, member) {
   }
 }
 
-
-if ("return".includes(key)) {
-  document.getElementById(key).play(ding.mp3);
-}
