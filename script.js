@@ -130,8 +130,3 @@ function addMessageToListDOM(text, member) {
   }
 }
 
-document.addEventListener('keypressed', function(enter) {
-  if (e.keyCode == 65) {
-    document.getElementById('audio').play();
-  }
-});
