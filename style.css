@@ -7,7 +7,7 @@
       flex-direction: column;
       max-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: rgb(255, 17, 0);
+    background-color: rgb(51, 90, 61);
     }
 
     .members-count,
@@ -49,6 +49,7 @@
   }
     .message-form__button {
       margin: 10px;
+      size: 22px;
     }
   
 
