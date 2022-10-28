@@ -7,7 +7,7 @@
       flex-direction: column;
       max-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: lightblue;
+    background-color: rgb(255, 17, 0);
     }
 
     .members-count,
@@ -51,3 +51,5 @@
       margin: 10px;
     }
   
+
+    
