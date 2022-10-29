@@ -9,6 +9,7 @@
   "author": "ravi shukla",
   "license": "ISC",
   "dependencies": {
-    "rs-chat": "2.0.6"
+    "rs-chat": "2.0.6",
+    "socket.io": "^4.5.2"
   }
 }

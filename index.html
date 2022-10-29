@@ -1,44 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <script type='text/javascript' src='https://cdn.scaledrone.com/scaledrone.min.js'></script>
-  <!--<script type='text/javascript' src='http://0.0.0.0:8080/scaledrone.js'></script>-->
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WeConnect - Realtime Node Socket.io Chat App</title>
+    <script defer src="http://localhost:8000/socket.io/socket.io.js"></script>
+    <script defer src="js/client.js"></script>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <div class="members-count">-</div>
-  <div class="members-list">-</div>
-  <div class="messages"></div>
-  <form class="message-form" onsubmit="return false;">
-    <input class="message-form__input" placeholder="Type a message.." type="text"/>
-    <input class="message-form__button" value="Send" type="submit"/>
-  </form>
-  <script src="https://catchat-meow.netlify.app/script.js"></script>
+    <nav>
+        <img class="logo" src="chat.png" alt="">
+        <h1>Welcome to WeConnect App</h1>
+    </nav>
+    <div class="container"></div> 
+    <div class="send">
+        <form action="#" id="send-container">
+            <input type="text" name="messageInp" id="messageInp">
+            <button class="btn" type="submit">Send</button>
+        </form>
+    </div>
 </body>
 </html>
-<title>catchat</title>
-
-
-<link rel="stylesheet" href="https://catchat-meow.netlify.app/style.css">
-
-
-<head>
-  <link rel="shortcut icon" type="image/png" href="https://catchat-meow.netlify.app/favicon-16x16.png"/>
-</head>
-
-<link rel="icon" type="image/png" sizes="16x16" href="https://catchat-meow.netlify.app/favicon-16x16.png">
-
-
-
-
-
-<audio controls autoplay loop>
-    <source src="https://catchat-meow.netlify.app/w.mp3" type="audio/mpeg">
-  Your browser does not support the audio element.
-</audio>
-
-
-
-go to https://catchat-meow.netlify.app/page2/index.html for viewing page 2
