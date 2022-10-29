@@ -7,7 +7,7 @@
       flex-direction: column;
       max-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: rgb(255, 128, 162);
+    background-color: rgb(255, 0, 68);
     }
 
     .members-count,
@@ -21,7 +21,6 @@
     .messages {
       flex-shrink: 1;
       overflow: auto;
-    color: rgb(0, 0, 0);
     }
 
     .message {
@@ -29,7 +28,6 @@
     }
     .message .member {
       display: inline-block;
-      color: black;
     }
 
     .member {
