@@ -69,7 +69,7 @@ function getRandomName() {
 }
 
 function getRandomColor() {
-  return '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16);
+  return '#' + Math.floor(Math.random() * 00000).toString(16);
 }
 
 //------------- DOM STUFF
@@ -91,7 +91,7 @@ function sendMessage() {
   }
   DOM.input.value = '';
   drone.publish({
-    room: 'observable-room',
+    room: 'main',
     message: value,
   });
 }
