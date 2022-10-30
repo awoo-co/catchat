@@ -26,3 +26,49 @@
 <source src="src/w.mp3" type="audio/mpeg">
 Your browser does not support the audio tag.
 </audio>
+
+
+
+<audio id="sound">
+  <source src="src/Ding.mp3">
+  Your browser does not support this audio format.
+</audio>
+
+ 
+<div id="output"></div>
+
+
+
+<script>
+
+
+
+var pressed = {},
+    audio = document.getElementById('sound'),
+    output = document.getElementById('output'),
+    maxValue = 2,
+    duration,
+    volume;
+
+document.onkeydown = function (e) {
+  if (pressed[e.which]) return;
+  pressed[e.which] = e.timeStamp;
+};
+
+document.onkeyup = function (e) {
+  if (!pressed[e.which]) return;
+  
+  // 86 = V
+  if (e.keyCode === 86) {
+    
+   
+
+    
+    audio.play();
+    
+    pressed[e.which] = 0;
+    
+    
+  }
+};
+</script>
