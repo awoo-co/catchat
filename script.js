@@ -135,7 +135,3 @@ function addMessageToListDOM(text, member) {
 Notification.requestPermission()
 
 
-
-this.onpush = function(event) {
-  console.log(event.data);
-}
