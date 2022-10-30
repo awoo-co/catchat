@@ -133,5 +133,8 @@ function addMessageToListDOM(text, member) {
 
 
 Notification.requestPermission()
-
+if (function addMessageToListDOM(text, member)){ 
+       
+  playsound("ding.mp4");
+}
 
