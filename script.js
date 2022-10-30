@@ -133,4 +133,3 @@ function addMessageToListDOM(text, member) {
 
 
 Notification.requestPermission()
-
