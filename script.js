@@ -136,7 +136,7 @@ Notification.requestPermission()
 
 
 
-var drone = new ScaleDrone('hXXPzu5YK1njjOax');
+drone = new ScaleDrone('hXXPzu5YK1njjOax');
 
 drone.on('open', function (error) {
   if (error) return console.error(error);
