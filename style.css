@@ -47,5 +47,5 @@ body {
   }
   .message-form__button {
     margin: 10px;
-    background-color: darkgreen;
+    color: darkgreen;
   }
