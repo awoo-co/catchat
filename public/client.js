@@ -1,5 +1,5 @@
 // CHANNEL_ID is defined in the index.ejs file
-const drone = new Scaledrone(CHANNEL_ID);
+const drone = new Scaledrone(hXXPzu5YK1njjOax);
 
 drone.on('open', error => {
   if (error) {
