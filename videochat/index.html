@@ -15,7 +15,7 @@
         <div id="video-streams"></div>
 
         <div id="stream-controls">
-            <button id="leave-btn">Leave Stream</button>
+            <button onclick="toggleText()" id="leave-btn">Leave Stream</button>
             <button id="mic-btn">Mic On</button>
             <button id="camera-btn">Camera on</button>
         </div>
@@ -26,3 +26,5 @@
 <script src="AgoraRTC_N-4.7.3.js"></script>
 <script src='main.js'></script>
 </html>
+
+<center><p id='demo' style='display: none'>you have left the video chat</p></center>     
