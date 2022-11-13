@@ -1,7 +1,7 @@
 body{
     background:#0F2027;
-    background:-webkit-linear-gradient(to right, #2C5364, #203A43, #0F2027) ;
-    background: linear-gradient(to right, #2C5364, #203A43, #0F2027);
+    background:-webkit-linear-gradient(to right, #9bdefb, #b8cfd6, #5dbee8) ;
+    background: linear-gradient(to right, #cef0ff, #aeebff, #8fd7f6);
 }
 
 #join-btn{
@@ -31,6 +31,7 @@ body{
 .video-player{
     height: 100%;
     width: 100%;
+    color: rgb(33, 97, 97);
 }
 
 button{
