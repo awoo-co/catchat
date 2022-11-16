@@ -2,6 +2,7 @@ body{
     background:#0F2027;
     background:-webkit-linear-gradient(to right, #9bdefb, #b8cfd6, #5dbee8) ;
     background: linear-gradient(to right, #cef0ff, #aeebff, #8fd7f6);
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
 
 #join-btn{
