@@ -12,6 +12,7 @@ body{
     margin-left:-100px;
     font-size:18px;
     padding:20px 40px;
+    font-family: 'Roboto', sans-serif;
 }
 
 #video-streams{
@@ -42,6 +43,7 @@ button{
     font-size:16px;
     margin:2px;
     cursor: pointer;
+    font-family: 'Roboto', sans-serif;
 }
 
 #stream-controls{
