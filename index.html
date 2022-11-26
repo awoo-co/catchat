@@ -16,7 +16,7 @@
   <div class="messages"></div>
   <form class="message-form" onsubmit="return false;">
     <input  class="message-form__input" placeholder="Type a message.." type="text"/>
-    <input style="background-color: rgb(83, 199, 83);" class="message-form__button" value="Send" type="submit"/>
+    <input onclick="notifyMe()" style="background-color: rgb(83, 199, 83);" class="message-form__button" value="Send" type="submit"/>
   </form>
   <a href="videochat/index.html">catchat videochat</a>
   <a href="page2/index.html">page2</a>
@@ -45,34 +45,6 @@ Your browser does not support the audio tag.
 
 
 
-var pressed = {},
-    audio = document.getElementById('sound'),
-    output = document.getElementById('output'),
-    maxValue = 2,
-    duration,
-    volume;
-
-document.onkeydown = function (e) {
-  if (pressed[e.which]) return;
-  pressed[e.which] = e.timeStamp;
-};
-
-document.onkeyup = function (e) {
-  if (!pressed[e.which]) return;
-  
-  // 86 = V
-  if (e.keyCode === 86) {
-    
-   
-
-    
-    audio.play();
-    
-    pressed[e.which] = 0;
-    
-    
-  }
-};
 </script>
 
 
@@ -86,3 +58,5 @@ chatchat videochat is now fixed so enjoy chating
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@900&display=swap" rel="stylesheet">
 
 <a href="/rules.html">rules</a>
+
+<button onclick="notifyMe()">Notify me!</button>
