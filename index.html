@@ -16,7 +16,7 @@
   <div class="messages"></div>
   <form class="message-form" onsubmit="return false;">
     <input  class="message-form__input" placeholder="Type a message.." type="text"/>
-    <input onclick="notifyMe()" style="background-color: rgb(83, 199, 83);" class="message-form__button" value="Send" type="submit"/>
+    <input  style="background-color: rgb(83, 199, 83);" class="message-form__button" value="Send" type="submit"/>
   </form>
   <a href="videochat/index.html">catchat videochat</a>
   <a href="page2/index.html">page2</a>
@@ -41,34 +41,7 @@ Your browser does not support the audio tag.
 
 
 
-<script>
-function notifyMe() {
-  if (!("Notification" in window)) {
-    // Check if the browser supports notifications
-    alert("This browser does not support desktop notification");
-  } else if (Notification.permission === "granted") {
-    // Check whether notification permissions have already been granted;
-    // if so, create a notification
-    const notification = new Notification("");
-    // …
-  } else if (Notification.permission !== "denied") {
-    // We need to ask the user for permission
-    Notification.requestPermission().then((permission) => {
-      // If the user accepts, let's create a notification
-      if (permission === "granted") {
-        const notification = new Notification("Hi there!");
-        // …
-      }
-    });
-  }
 
-  // At last, if the user has denied notifications, and you
-  // want to be respectful there is no need to bother them anymore.
-}
-
-
-
-</script>
 
 
 <title>catchat</title>
@@ -82,4 +55,3 @@ chatchat videochat is now fixed so enjoy chating
 
 <a href="/rules.html">rules</a>
 
-<button onclick="notifyMe()">Notify me!</button>
