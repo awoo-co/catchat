@@ -1,5 +1,5 @@
 const APP_ID = "5f10b8d038114e4494671eba6636a671"
-const TOKEN = "007eJxTYMiP0z+UqVQ902ftMZ7chwu/JDv/mTDj4KlTAmsW7XKebJKrwGCaZmiQZJFiYGxhaGiSamJiaWJmbpialGhmZmyWCGR6/m5PbghkZDB+38/ACIUgPgtDbmp+OQMDAIWvIDw="
+const TOKEN = "007eJxTYPigcGl6VUSm/ffDC2wdy2/MmLKwbKGXxI2W59VrvBZmFO9UYDBNMzRIskgxMLYwNDRJNTGxNDEzN0xNSjQzMzZLBDJ3iHcmNwQyMjQ1LmdlZIBAEJ+FITc1v5yBAQCwwiBX"
 const CHANNEL = "meow"
 
 const client = AgoraRTC.createClient({mode:'rtc', codec:'vp8'})
