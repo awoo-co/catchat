@@ -1,6 +1,6 @@
-﻿var currentUserKey = '';
-var chatKey = '';
-var friend_id = '';
+﻿var currentUserKey = '1';
+var chatKey = 'chatcat';
+var friend_id = '212';
 
 
 
