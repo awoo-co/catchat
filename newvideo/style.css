@@ -1,0 +1,16 @@
+video {
+    background:#0F2027;
+    background:-webkit-linear-gradient(to right, #9bdefb, #b8cfd6, #5dbee8) ;
+    background: linear-gradient(to right, #cef0ff, #aeebff, #8fd7f6);
+   font-family: 'Roboto', sans-serif;
+    border-radius: 7px;
+    margin: 10px 0px 0px 10px;
+    width: 320px;
+    height: 240px;
+  }
+  button {
+    margin: 5px 0px 0px 10px !important;
+    width: 654px;
+    background:#0F2027;
+   font-family: 'Roboto', sans-serif;
+}
