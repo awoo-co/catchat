@@ -6,7 +6,6 @@ var config = {
     storageBucket: "newvideo2212.appspot.com",
     messagingSenderId: "283500325791",
     appId: "1:283500325791:web:4715dfd7a607b511832baa"
-  
   };
   firebase.initializeApp(config);
   
