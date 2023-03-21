@@ -1,37 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>catchat videochat</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='style.css'>
+    <meta charset="UTF-8">
+    <title>Get started with Voice Calling</title>
 </head>
+
 <body>
-
-    <button id="join-btn">Join Stream</button>
-
-    <div id="stream-wrapper">
-        <div id="video-streams"></div>
-
-        <div id="stream-controls">
-            <button onclick="toggleText()" id="leave-btn">Leave Stream</button>
-            <button id="mic-btn">Mic On</button>
-            <button id="camera-btn">Camera on</button>
+    <script type="module" src="/main.js"></script>
+    <h2 class="left-align">Get started with Voice Calling</h2>
+    <div class="row">
+        <div>
+            <button type="button" id="join">Join</button>
+            <button type="button" id="leave">Leave</button>
         </div>
     </div>
-    
+    <br>
+    <div id="message"></div>
 </body>
-<!-- <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script> -->
-<script src="AgoraRTC_N-4.7.3.js"></script>
-<script src='main.js'></script>
 </html>
 
-<center><p id='demo'  style='display: none'>you have left the video chat</p></center>     
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@900&display=swap" rel="stylesheet">
 
 <a href="/rules.html">rules</a>
 
+<link rel='stylesheet' type='text/css' media='screen' href='style.css'>
+
+<title>catchat videochat</title>
