@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-<<<<<<< HEAD
-    "firebase": "^6.4.2"
-=======
-    "firebase": "^9.17.2"
->>>>>>> 80327794d2578ffe229075fbcc9aaa917cd9bb32
-  }
-}
