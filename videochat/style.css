@@ -1,7 +1,6 @@
 body{
-    background:#0F2027;
-    background:-webkit-linear-gradient(to right, #9bdefb, #b8cfd6, #5dbee8) ;
-    background: linear-gradient(to right, #cef0ff, #aeebff, #8fd7f6);
+    background: rgb(2,0,36);
+    background: linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%);
    font-family: 'Roboto', sans-serif;
 }
 #join-btn{
