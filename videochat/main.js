@@ -104,7 +104,7 @@ document.getElementById('camera-btn').addEventListener('click', toggleCamera)
 
 
 function toggleText() {
-    var text = document.getElementById("demo");
+    var text = document.getElementById("text");
     if (text.style.display === "none") {
       text.style.display = "block";
     } else {
