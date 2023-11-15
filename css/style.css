@@ -14,7 +14,7 @@ body {
 .top {
     height: 130px;
     width: 100%;
-    background-color: #009688;
+    background-color: #525252;
     position: fixed;
     z-index: -1;
 }
@@ -64,7 +64,7 @@ body {
 }
 
 .receive {
-    background-color: lightgreen;
+    background-color: rgb(38, 38, 38);
     border-radius: 1rem;
     padding: 10px 15px;
     display: inline-block;
