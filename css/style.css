@@ -43,7 +43,7 @@ body {
 
 .name {
     font-weight: 400;
-    color: #ffffff;
+    color: #000000;
 }
 
 .under-name {
@@ -64,10 +64,11 @@ body {
 }
 
 .receive {
-    background-color: rgb(38, 38, 38);
+    background-color: rgb(0, 0, 0);
     border-radius: 1rem;
     padding: 10px 15px;
     display: inline-block;
+    color: white;
 }
 
 .sent {
