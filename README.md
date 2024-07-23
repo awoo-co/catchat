@@ -1,2 +1,6 @@
-# catchat-meow is a chating site from a non working template i found on google or github i forgot and i made it work again
-catchat is now working the problem was firebase was down thats makes catchat down sorry for the inconvenience
+# catchat
+* is a chatting site i found from a template and made it working again
+* the provider i use for catchat is google firebase
+* so i don't know if its going to be online or down
+* incase if you want to read the privacy page click here
+[read](https://github.com/teslakitty/catchat/blob/main/Privacy.md)
