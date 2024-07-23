@@ -8,8 +8,8 @@ This Privacy Policy explains how we collect, use, and protect your information w
 ## Information We Collect
 
 We may collect the following information:
-- Email address (if you choose to provide it)
-- Usage data (like the pages you visit)
+- Email address
+- Usage data (like the pages you visit
 
 ## How We Use Your Information
 
