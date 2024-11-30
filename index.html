@@ -3,35 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catchat</title> <!-- Title of the page -->
-
-  <!-- Favicon -->
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-
-  <link rel="stylesheet" href="style.css"> <!-- External CSS file -->
+  <title>Catchat</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <div class="chat-container">
-    <!-- Join Section (name input and join button) -->
-    <div id="join-section" class="join-section">
-      <h1 class="chat-title">Catchat</h1>
-      <input id="name-input" class="input-field" type="text" placeholder="Enter your name" required>
-      <button id="join-btn" class="join-btn">Join Chat</button>
-    </div>
+    <h1 class="chat-title">Catchat</h1>
 
-    <!-- Chat Section (messages and input field) -->
-    <div id="chat-section" class="chat-section" style="display: none;">
-      <h1 class="chat-title">Catchat</h1>
-      <div id="messages" class="messages"></div>
-      <input id="input" class="input-field" type="text" placeholder="Type a message and hit Enter">
+    <!-- Flex container for Left and Right Containers -->
+    <div class="main-content">
+      <!-- Left Container (Online Users & Input Field) -->
+      <div id="left-container" class="left-container">
+        <div id="users-container" class="users-container">
+          <h3>Online Users:</h3>
+          <div id="users-list" class="users-list"></div> <!-- User names displayed side by side -->
+        </div>
+
+        <!-- Input Box -->
+        <input id="input" class="input-field" type="text" placeholder="Type a message and hit Enter">
+      </div>
+
+      <!-- Right Container (Messages) -->
+      <div id="right-container" class="right-container">
+        <div id="messages" class="messages"></div>
+      </div>
     </div>
   </div>
 
-  <!-- Include ScaleDrone Library -->
-  <script src="scaledrone.min.js"></script> <!-- External library -->
-
-  <!-- Your custom script -->
+  <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script> <!-- External library -->
   <script src="script.js"></script> <!-- External JS file -->
 </body>
 </html>
