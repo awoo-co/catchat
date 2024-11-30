@@ -3,15 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catchat</title> <!-- Title of the page changed here -->
+  <title>Catchat</title> <!-- Title of the page -->
   <link rel="stylesheet" href="style.css"> <!-- External CSS file -->
 </head>
 <body>
 
   <div class="chat-container">
-    <h1 class="chat-title">Catchat</h1> <!-- Heading updated to Catchat -->
-    <div id="messages" class="messages"></div>
-    <input id="input" class="input-field" type="text" placeholder="Type a message and hit Enter">
+    <!-- Join Section (name input and join button) -->
+    <div id="join-section" class="join-section">
+      <h1 class="chat-title">Catchat</h1>
+      <input id="name-input" class="input-field" type="text" placeholder="Enter your name" required>
+      <button id="join-btn" class="join-btn">Join Chat</button>
+    </div>
+
+    <!-- Chat Section (messages and input field) -->
+    <div id="chat-section" class="chat-section" style="display: none;">
+      <h1 class="chat-title">Catchat</h1>
+      <div id="messages" class="messages"></div>
+      <input id="input" class="input-field" type="text" placeholder="Type a message and hit Enter">
+    </div>
   </div>
 
   <!-- Include ScaleDrone Library -->
