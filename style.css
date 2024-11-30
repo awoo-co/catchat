@@ -47,6 +47,9 @@ body {
   background-color: #333;
   margin-bottom: 20px;
   height: 60%; /* Ensure enough space is available for the messages */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end; /* Ensure messages are aligned at the bottom */
 }
 
 .messages div {

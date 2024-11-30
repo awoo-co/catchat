@@ -45,7 +45,7 @@ function initializeChat() {
     // Listen for incoming messages in the room
     room.on('message', message => {
       const { data } = message;
-      console.log('Received message:', data);
+      console.log('Received message:', data);  // This will log the incoming messages to the console.
       addMessageToChat(data); // Display received message
     });
   });
@@ -54,6 +54,7 @@ function initializeChat() {
   inputField.addEventListener('keypress', event => {
     if (event.key === 'Enter' && inputField.value.trim()) {
       const message = `${username}: ${inputField.value}`; // Include username in the message
+      console.log('Sending message:', message);  // Log the message being sent
       drone.publish({
         room: ROOM_NAME,
         message
