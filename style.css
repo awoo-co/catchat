@@ -46,6 +46,7 @@ body {
   border-radius: 8px;
   background-color: #333;
   margin-bottom: 20px;
+  height: 60%; /* Ensure enough space is available for the messages */
 }
 
 .messages div {

@@ -1,4 +1,4 @@
-const CHANNEL_ID = "VcFdeFedyz6Pcbkw"; // Your ScaleDrone Channel ID
+const CHANNEL_ID = "VcFdeFedyz6Pcbkw"; // Replace with your ScaleDrone Channel ID
 const ROOM_NAME = "ht1OPcsBgvG9eEZYkjffs0sMTTqp02E5";  // Room name (must start with 'observable-')
 
 const drone = new ScaleDrone(CHANNEL_ID);
@@ -6,28 +6,25 @@ const messagesDiv = document.getElementById('messages');
 const inputField = document.getElementById('input');
 const joinSection = document.getElementById('join-section');
 const chatSection = document.getElementById('chat-section');
+const joinButton = document.getElementById('join-btn');
 const nameInput = document.getElementById('name-input');
-const joinBtn = document.getElementById('join-btn');
 
-let username = ''; // To store the user's name
+let username = "";
 
-// Show join section and hide chat section initially
-joinSection.style.display = 'flex';
-chatSection.style.display = 'none';
-
-// Join button functionality
-joinBtn.addEventListener('click', () => {
-  username = nameInput.value.trim(); // Get the username
-  if (!username) {
-    alert("Please enter your name to join the chat.");
-    return;
+// Show the chat section and hide the join section when the user joins
+joinButton.addEventListener('click', () => {
+  if (nameInput.value.trim()) {
+    username = nameInput.value.trim();
+    joinSection.style.display = 'none';
+    chatSection.style.display = 'block';
+    initializeChat();
+  } else {
+    alert("Please enter a valid name!");
   }
+});
 
-  // Hide join section and show chat section
-  joinSection.style.display = 'none';
-  chatSection.style.display = 'flex';
-
-  // Initialize ScaleDrone connection
+function initializeChat() {
+  // When the connection is established
   drone.on('open', error => {
     if (error) {
       console.error('Connection error:', error);
@@ -35,7 +32,7 @@ joinBtn.addEventListener('click', () => {
     }
     console.log('Connected to ScaleDrone');
 
-    // Join the room
+    // Join a room
     const room = drone.subscribe(ROOM_NAME);
     room.on('open', error => {
       if (error) {
@@ -48,27 +45,30 @@ joinBtn.addEventListener('click', () => {
     // Listen for incoming messages in the room
     room.on('message', message => {
       const { data } = message;
-      addMessageToChat(data);
+      console.log('Received message:', data);
+      addMessageToChat(data); // Display received message
     });
   });
-});
 
-// Send message when hitting Enter
-inputField.addEventListener('keypress', event => {
-  if (event.key === 'Enter' && inputField.value.trim()) {
-    const message = `${username}: ${inputField.value}`; // Prefix message with username
-    drone.publish({
-      room: ROOM_NAME,
-      message
-    });
-    inputField.value = ''; // Clear input field after sending
-  }
-});
+  // Send message when hitting Enter
+  inputField.addEventListener('keypress', event => {
+    if (event.key === 'Enter' && inputField.value.trim()) {
+      const message = `${username}: ${inputField.value}`; // Include username in the message
+      drone.publish({
+        room: ROOM_NAME,
+        message
+      });
+      inputField.value = ''; // Clear input field after sending
+    }
+  });
+}
 
 // Add message to chat
 function addMessageToChat(message) {
   const messageElem = document.createElement('div');
-  messageElem.textContent = message;
-  messagesDiv.appendChild(messageElem);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to latest message
+  messageElem.textContent = message;  // Set the message text
+  messagesDiv.appendChild(messageElem);  // Add message to the messages div
+
+  // Auto-scroll to the latest message
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
