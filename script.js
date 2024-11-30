@@ -1,5 +1,5 @@
-const CHANNEL_ID = "VcFdeFedyz6Pcbkw"; // Replace with your ScaleDrone Channel ID
-const ROOM_NAME = "ht1OPcsBgvG9eEZYkjffs0sMTTqp02E5";  // Room name (must start with 'observable-')
+const ROOM_NAME = "ht1OPcsBgvG9eEZYkjffs0sMTTqp02E5";  // Room name
+const CHANNEL_ID = "VcFdeFedyz6Pcbkw"; // Channel ID (this is public, not the secret key)
 
 const drone = new ScaleDrone(CHANNEL_ID);
 const messagesDiv = document.getElementById('messages');
