@@ -25,25 +25,27 @@ joinButton.addEventListener('click', () => {
 
 function initializeChat() {
   // When the connection is established
-  drone.on('open', error => {
+  drone.on('open', (error) => {
     if (error) {
       console.error('Connection error:', error);
       return;
     }
     console.log('Connected to ScaleDrone');
+    alert("Connected to ScaleDrone!");  // Show alert when connected
 
     // Join a room
     const room = drone.subscribe(ROOM_NAME);
-    room.on('open', error => {
+    room.on('open', (error) => {
       if (error) {
         console.error('Room join error:', error);
         return;
       }
       console.log('Joined room:', ROOM_NAME);
+      alert('Joined room successfully');
     });
 
     // Listen for incoming messages in the room
-    room.on('message', message => {
+    room.on('message', (message) => {
       const { data } = message;
       console.log('Received message:', data);  // This will log the incoming messages to the console.
       addMessageToChat(data); // Display received message
@@ -51,9 +53,9 @@ function initializeChat() {
   });
 
   // Send message when hitting Enter
-  inputField.addEventListener('keypress', event => {
+  inputField.addEventListener('keypress', (event) => {
     if (event.key === 'Enter' && inputField.value.trim()) {
-      const message = `${username}: ${inputField.value}`; // Include username in the message
+      const message = `${username}: ${inputField.value}`;
       console.log('Sending message:', message);  // Log the message being sent
       drone.publish({
         room: ROOM_NAME,
