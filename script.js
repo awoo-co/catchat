@@ -92,83 +92,43 @@ function updateOnlineUsers(members) {
   });
 }
 
-// Check if the user is offline
-function isOffline() {
-  return !navigator.onLine;
+// Handle file upload
+function uploadFile() {
+  const fileInput = document.getElementById('fileUpload');
+  const file = fileInput.files[0];
+
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const fileData = event.target.result;
+      const filename = file.name;
+
+      // Send a message saying the file is uploaded
+      const message = `File uploaded: ${filename}`;
+      sendMessage(message);
+
+      // Create a download link for the file
+      const downloadLink = document.createElement('a');
+      downloadLink.href = fileData;
+      downloadLink.download = filename;
+      downloadLink.textContent = 'Download File';
+      downloadLink.classList.add('download-link');
+
+      // Append the download link to the message
+      const messageDiv = document.createElement('div');
+      messageDiv.textContent = message;
+      messageDiv.appendChild(downloadLink); // Add the download link to the message
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom
+    };
+    reader.readAsDataURL(file);
+  }
 }
 
-// Store message locally when the user is offline
-function storeMessageLocally(message) {
-  let offlineMessages = JSON.parse(localStorage.getItem('offlineMessages')) || [];
-  offlineMessages.push(message);
-  localStorage.setItem('offlineMessages', JSON.stringify(offlineMessages));
-}
-
-// Retrieve locally stored messages (when the user is back online)
-function getOfflineMessages() {
-  return JSON.parse(localStorage.getItem('offlineMessages')) || [];
-}
-
-// Function to send the message
+// Function to send a message to the room
 function sendMessage(message) {
-  if (isOffline()) {
-    storeMessageLocally(message); // Store if offline
-    alert("You're offline, the message will be sent once you're back online.");
-  } else {
-    // Send the message to the server (or via WebSockets)
-    drone.publish({
-      room: ROOM_NAME,
-      message
-    }, (error) => {
-      if (error) {
-        console.error('Error publishing message:', error);
-      } else {
-        console.log('Message sent:', message);
-      }
-    });
-  }
-}
-
-// When the user comes back online, send the stored messages
-window.addEventListener('online', () => {
-  let offlineMessages = getOfflineMessages();
-
-  if (offlineMessages.length > 0) {
-    offlineMessages.forEach((message) => {
-      // Send each stored message to the server
-      console.log("Sending offline message:", message);
-      drone.publish({
-        room: ROOM_NAME,
-        message
-      }, (error) => {
-        if (error) {
-          console.error('Error publishing message:', error);
-        } else {
-          console.log('Offline message sent:', message);
-        }
-      });
-    });
-
-    // Clear offline messages after they've been sent
-    localStorage.removeItem('offlineMessages');
-  }
-});
-
-// Function to display message in the chat window
-function displayMessage(message) {
-  const messagesDiv = document.getElementById('messages');
-  const messageDiv = document.createElement('div');
-  messageDiv.textContent = message;
-  messagesDiv.appendChild(messageDiv);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom
-}
-
-// On page load, check if there are any offline messages to send
-window.addEventListener('load', () => {
-  let offlineMessages = getOfflineMessages();
-
-  // Display any offline messages when the page loads
-  offlineMessages.forEach((message) => {
-    displayMessage(message);
+  drone.publish({
+    room: ROOM_NAME,
+    message: { username, text: message }
   });
-});
+}

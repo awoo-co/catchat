@@ -13,10 +13,14 @@
 
     <!-- Flex container for Left and Right Containers -->
     <div class="main-content">
-      <!-- Left Container (Only Input Field) -->
+      <!-- Left Container (Input Field and File Upload) -->
       <div id="left-container" class="left-container">
-        <!-- Input Box -->
-        <input id="input" class="input-field" type="text" placeholder="Type a message and hit Enter">
+        <!-- Text Area for Input -->
+        <textarea id="input" class="input-field" placeholder="Type a message and hit Enter"></textarea>
+
+        <!-- File Upload -->
+        <input type="file" id="fileUpload" class="file-upload" />
+        <button onclick="uploadFile()">Upload</button>
       </div>
 
       <!-- Right Container (Messages) -->
@@ -26,7 +30,7 @@
     </div>
   </div>
 
-  <!-- Include the ScaleDrone CDN Script (Ensure it's loaded before your script.js) -->
+  <!-- Include the ScaleDrone CDN Script -->
   <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
 
   <!-- Your Custom Script -->
