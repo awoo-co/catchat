@@ -1,49 +1,49 @@
-// service-worker.js
-
-const CACHE_NAME = "catchat-cache-v1";
-const urlsToCache = [
+const CACHE_NAME = 'catchat-cache-v1';
+const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/style.css',
   '/script.js',
   '/service-worker.js',
-  'https://cdn.scaledrone.com/scaledrone.min.js', // Include external assets like ScaleDrone (or use local copy)
+  'https://cdn.scaledrone.com/scaledrone.min.js', // ScaleDrone script
 ];
 
-// Install event - caching necessary assets
+// Install Event - Cache the necessary assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('Caching files');
-      return cache.addAll(urlsToCache);
-    })
+      return cache.addAll(ASSETS_TO_CACHE);
+    }).then(() => self.skipWaiting())
   );
+  console.log('Service Worker installed and assets cached.');
 });
 
-// Fetch event - check cache first, then network if offline
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse; // Return cached file if available
-      }
-      return fetch(event.request); // Otherwise fetch from network
-    })
-  );
-});
-
-// Activate event - clean up old caches
+// Activate Event - Clean up old caches if needed
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (!cacheWhitelist.includes(cacheName)) {
-            return caches.delete(cacheName);
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            console.log('Service Worker removing old cache:', cache);
+            return caches.delete(cache);
           }
         })
       );
+    }).then(() => self.clients.claim())
+  );
+  console.log('Service Worker activated.');
+});
+
+// Fetch Event - Serve cached files when offline
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      return cachedResponse || fetch(event.request);
+    }).catch(() => {
+      if (event.request.mode === 'navigate') {
+        return caches.match('/');
+      }
     })
   );
 });
