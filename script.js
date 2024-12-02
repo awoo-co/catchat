@@ -7,44 +7,17 @@ const inputField = document.getElementById('input');
 const fileInput = document.getElementById('fileInput');
 
 let username = generateRandomUsername();
-let db; // IndexedDB instance
 
-// Initialize IndexedDB
-const request = indexedDB.open("CatchatDB", 1);
-
-request.onupgradeneeded = (event) => {
-  db = event.target.result;
-  db.createObjectStore("messages", { keyPath: "id", autoIncrement: true });
-};
-
-request.onsuccess = (event) => {
-  db = event.target.result;
-  loadMessagesFromDB(); // Load messages on startup
-};
-
-request.onerror = (event) => {
-  console.error("IndexedDB error:", event.target.error);
-};
-
-// Load messages from IndexedDB
-function loadMessagesFromDB() {
-  const transaction = db.transaction("messages", "readonly");
-  const store = transaction.objectStore("messages");
-  const request = store.getAll();
-
-  request.onsuccess = (event) => {
-    const messages = event.target.result;
-    messages.forEach((message) => addMessageToChat(message.data, false));
-  };
+// Service Worker Registration for offline support
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js').then((registration) => {
+    console.log('Service Worker registered with scope:', registration.scope);
+  }).catch((error) => {
+    console.error('Service Worker registration failed:', error);
+  });
 }
 
-// Save message to IndexedDB
-function saveMessageToDB(data) {
-  const transaction = db.transaction("messages", "readwrite");
-  const store = transaction.objectStore("messages");
-  store.add({ data });
-}
-
+// Connect to ScaleDrone and subscribe to the room
 drone.on('open', (error) => {
   if (error) {
     console.error('Connection error:', error);
@@ -52,27 +25,26 @@ drone.on('open', (error) => {
     return;
   }
   const room = drone.subscribe(ROOM_NAME);
-  room.on('open', (error) => {
-    if (error) {
-      console.error('Room join error:', error);
-      alert('Failed to join the room.');
-    }
-  });
-  room.on('message', (message) => {
-    addMessageToChat(message.data, true);
-    saveMessageToDB(message.data); // Save received message
-  });
+  room.on('message', handleMessage);
 });
 
+// Prevent duplication by clearing existing listeners
+function handleMessage(message) {
+  if (message.data && !message.data.duplicate) {
+    addMessageToChat(message.data);
+  }
+}
+
+// Send text message on Enter
 inputField.addEventListener('keypress', (event) => {
   if (event.key === 'Enter' && inputField.value.trim()) {
     event.preventDefault();
-    const message = { type: 'text', text: inputField.value, username };
-    sendMessage(message);
+    sendMessage({ type: 'text', text: inputField.value });
     inputField.value = '';
   }
 });
 
+// File Upload Handler
 fileInput.addEventListener('change', (event) => {
   const file = event.target.files[0];
   if (file) {
@@ -80,55 +52,52 @@ fileInput.addEventListener('change', (event) => {
     reader.onload = () => {
       const fileData = reader.result;
       const isImage = file.type.startsWith('image/');
-      const message = {
+      sendMessage({
         type: 'file',
         filename: file.name,
         content: fileData,
         fileType: file.type,
-        isImage: isImage,
-        username
-      };
-      sendMessage(message);
+        isImage: isImage
+      });
+      alert(`File uploaded: ${file.name}`);
     };
     reader.readAsDataURL(file);
   }
 });
 
-function generateRandomUsername() {
-  const adjectives = ["Fast", "Cool", "Silent", "Swift", "Mighty"];
-  const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
-  const randomNum = Math.floor(Math.random() * 1000);
-  return `${randomAdj}${randomNum}`;
-}
-
+// Send message function
 function sendMessage(data) {
-  drone.publish({ room: ROOM_NAME, message: data });
-  saveMessageToDB(data); // Save sent message
-  addMessageToChat(data, false);
+  drone.publish({ room: ROOM_NAME, message: { ...data, username } });
 }
 
-function addMessageToChat(message, fromRemote) {
+// Add messages to the chat box
+function addMessageToChat(message) {
   const messageDiv = document.createElement('div');
   messageDiv.classList.add('message');
+  
   if (message.type === 'text') {
     messageDiv.textContent = `${message.username}: ${message.text}`;
   } else if (message.type === 'file') {
     if (message.isImage) {
-      messageDiv.innerHTML = `<strong>${message.username}:</strong><br><img src="${message.content}" style="max-width: 200px;">`;
+      messageDiv.innerHTML = `
+        <strong>${message.username}:</strong><br>
+        <img src="${message.content}" alt="${message.filename}" style="max-width: 100%; max-height: 200px;">
+      `;
     } else {
-      messageDiv.innerHTML = `<strong>${message.username}:</strong> <a href="${message.content}" download="${message.filename}">Download ${message.filename}</a>`;
+      messageDiv.innerHTML = `
+        <strong>${message.username}:</strong> <a href="${message.content}" download="${message.filename}">${message.filename}</a>
+      `;
     }
   }
+  
   messagesDiv.appendChild(messageDiv);
-  if (!fromRemote) messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-
-// Service Worker Registration
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js').then((registration) => {
-    console.log('Service Worker registered with scope:', registration.scope);
-  }).catch((error) => {
-    console.error('Service Worker registration failed:', error);
-  });
+// Random username generator
+function generateRandomUsername() {
+  const adjectives = ["Fast", "Cool", "Silent", "Swift", "Mighty", "Brave"];
+  const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const randomNum = Math.floor(Math.random() * 1000);
+  return `${randomAdj}${randomNum}`;
 }
