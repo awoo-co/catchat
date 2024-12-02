@@ -101,10 +101,23 @@ function sendMessage(data) {
 // Function to add received messages to chat
 function addMessageToChat(message) {
   const messageDiv = document.createElement('div');
+  messageDiv.classList.add('message');
   if (message.type === 'text') {
     messageDiv.textContent = `${message.username}: ${message.text}`;
   } else if (message.type === 'file') {
-    messageDiv.innerHTML = `${message.username} sent a file: <a class="download-link" href="${message.content}" download="${message.filename}">Download ${message.filename}</a>`;
+    if (message.isImage) {
+      messageDiv.innerHTML = `
+        ${message.username} sent an image:
+        <img src="${message.content}" alt="${message.filename}" style="max-width: 200px; max-height: 200px; margin-top: 10px;">
+      `;
+    } else {
+      messageDiv.innerHTML = `
+        ${message.username} sent a file: 
+        <a class="download-link" href="${message.content}" download="${message.filename}">
+          Download ${message.filename}
+        </a>
+      `;
+    }
   }
   messagesDiv.appendChild(messageDiv);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
