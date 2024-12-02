@@ -1,30 +1,61 @@
-/* Reset button styles */
-.reset-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: #ff4747;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+/* Basic styles for the layout */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f4f8;
+  margin: 0;
+  padding: 0;
 }
 
-/* Message container styles */
-.messages {
-  max-height: 400px;
-  overflow-y: auto;
-  margin-top: 10px;
+.chat-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Optional: File upload button and image styling */
-input[type="file"] {
-  display: none;
+.chat-title {
+  text-align: center;
+  font-size: 2em;
+  color: #333;
+  margin-bottom: 20px;
 }
-button {
+
+/* Flexbox layout for main content */
+.main-content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.left-container {
+  flex: 1;
+  padding-right: 20px;
+}
+
+.right-container {
+  flex: 2;
+  border-left: 1px solid #ddd;
+  padding-left: 20px;
+}
+
+.input-field {
+  width: 100%;
+  height: 60px;
   padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+button {
   background-color: #4CAF50;
   color: white;
   border: none;
+  padding: 10px 20px;
   cursor: pointer;
   border-radius: 5px;
 }
@@ -33,9 +64,44 @@ button:hover {
   background-color: #45a049;
 }
 
-img {
-  display: block;
+.messages {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fafafa;
+}
+
+.message {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+}
+
+.message img {
+  max-width: 200px;
+  max-height: 200px;
   margin-top: 10px;
-  max-width: 100%; /* Make sure the image fits within the container */
-  height: auto;
+}
+
+.reset-button {
+  display: block;
+  width: 100%;
+  margin-top: 20px;
+  background-color: #f44336;
+}
+
+.reset-button:hover {
+  background-color: #e53935;
+}
+
+.download-link {
+  text-decoration: none;
+  color: #1e88e5;
+}
+
+.download-link:hover {
+  text-decoration: underline;
 }

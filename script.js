@@ -7,6 +7,7 @@ const inputField = document.getElementById('input');
 const fileInput = document.getElementById('fileInput');
 
 let username = generateRandomUsername();
+let db;
 
 // Service Worker Registration for offline support
 if ('serviceWorker' in navigator) {
@@ -16,6 +17,25 @@ if ('serviceWorker' in navigator) {
     console.log('Service Worker registration failed:', error);
   });
 }
+
+// IndexedDB setup for storing files
+const openRequest = indexedDB.open("CatchatFiles", 1);
+
+openRequest.onupgradeneeded = function (e) {
+  db = e.target.result;
+  if (!db.objectStoreNames.contains("files")) {
+    db.createObjectStore("files", { keyPath: "id", autoIncrement: true });
+  }
+};
+
+openRequest.onsuccess = function () {
+  db = openRequest.result;
+  console.log("IndexedDB is ready");
+};
+
+openRequest.onerror = function (e) {
+  console.error("Error opening IndexedDB:", e.target.error);
+};
 
 // ScaleDrone Connection and Room Subscription
 drone.on('open', (error) => {
@@ -58,8 +78,26 @@ fileInput.addEventListener('change', (event) => {
     const reader = new FileReader();
     reader.onload = () => {
       const fileData = reader.result;
-      console.log('File read successfully:', fileData);
-      
+
+      // Save file in IndexedDB
+      const transaction = db.transaction("files", "readwrite");
+      const fileStore = transaction.objectStore("files");
+      const fileRecord = {
+        filename: file.name,
+        fileType: file.type,
+        fileContent: fileData,
+        uploadedAt: new Date()
+      };
+      fileStore.add(fileRecord);
+
+      transaction.oncomplete = () => {
+        console.log("File saved to IndexedDB");
+      };
+
+      transaction.onerror = (error) => {
+        console.error("Error saving file to IndexedDB", error);
+      };
+
       // Detect if the file is an image based on MIME type
       const isImage = file.type.startsWith('image/');
       sendMessage({
@@ -69,6 +107,7 @@ fileInput.addEventListener('change', (event) => {
         fileType: file.type,
         isImage: isImage
       });
+
       alert('File uploaded: ' + file.name);
     };
     reader.onerror = () => {
