@@ -19,8 +19,8 @@
         <textarea id="input" class="input-field" placeholder="Type a message and hit Enter"></textarea>
 
         <!-- File Upload -->
-        <input type="file" id="fileUpload" class="file-upload" />
-        <button onclick="uploadFile()">Upload</button>
+        <input type="file" id="fileInput" style="display: none;">
+        <button onclick="document.getElementById('fileInput').click()">Upload File</button>        
       </div>
 
       <!-- Right Container (Messages) -->

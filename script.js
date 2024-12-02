@@ -4,21 +4,16 @@ const CHANNEL_ID = "VcFdeFedyz6Pcbkw";
 const drone = new ScaleDrone(CHANNEL_ID);
 const messagesDiv = document.getElementById('messages');
 const inputField = document.getElementById('input');
-const usersList = document.getElementById('users-list');
+const fileInput = document.getElementById('fileInput');
 
-let username = generateRandomUsername(); // Generate a random username
+let username = generateRandomUsername();
 
 // Service Worker Registration for offline support
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/service-worker.js')
-      .then((registration) => {
-        console.log('Service Worker registered with scope:', registration.scope);
-      })
-      .catch((error) => {
-        console.log('Service Worker registration failed:', error);
-      });
+  navigator.serviceWorker.register('/service-worker.js').then((registration) => {
+    console.log('Service Worker registered with scope:', registration.scope);
+  }).catch((error) => {
+    console.log('Service Worker registration failed:', error);
   });
 }
 
@@ -39,34 +34,54 @@ drone.on('open', (error) => {
       return;
     }
     console.log('Joined room:', ROOM_NAME);
-    // Show the messages and input field after joining
-    messagesDiv.style.display = 'block';
-    inputField.style.display = 'block';
-    document.getElementById('left-container').style.display = 'block'; // Show left container
-    document.getElementById('right-container').style.display = 'block'; // Show right container
   });
 
   room.on('message', (message) => {
-    console.log('Received message:', message);
+    console.log("Received message:", message);
     addMessageToChat(message.data);
-  });
-
-  room.on('members', (members) => {
-    updateOnlineUsers(members);
   });
 });
 
-// Message input and handling
+// Send text message on Enter
 inputField.addEventListener('keypress', (event) => {
   if (event.key === 'Enter' && inputField.value.trim()) {
-    const message = `${username}: ${inputField.value}`;
-    console.log('Sending message:', message);
-    sendMessage(message); // Send the message (offline or online)
-    inputField.value = ''; 
+    event.preventDefault(); // Prevent new line on Enter
+    sendMessage({ type: 'text', text: inputField.value });
+    inputField.value = '';
   }
 });
 
-// Function to generate random username
+// Handle file upload
+fileInput.addEventListener('change', (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const fileData = reader.result;
+      console.log('File read successfully:', fileData);
+      
+      // Detect if the file is an image based on MIME type
+      const isImage = file.type.startsWith('image/');
+      sendMessage({
+        type: 'file',
+        filename: file.name,
+        content: fileData,
+        fileType: file.type,
+        isImage: isImage
+      });
+      alert('File uploaded: ' + file.name);
+    };
+    reader.onerror = () => {
+      console.error('File reading failed:', reader.error);
+      alert('File upload failed. Try again.');
+    };
+    reader.readAsDataURL(file);
+  } else {
+    alert('No file selected.');
+  }
+});
+
+// Function to generate a random username
 function generateRandomUsername() {
   const adjectives = ["Fast", "Cool", "Silent", "Swift", "Mighty", "Brave", "Bold"];
   const randomAdj = adjectives[Math.floor(Math.random() * adjectives.length)];
@@ -74,61 +89,37 @@ function generateRandomUsername() {
   return `${randomAdj}${randomNum}`;
 }
 
+// Function to send messages
+function sendMessage(data) {
+  console.log('Sending message:', data);
+  drone.publish({
+    room: ROOM_NAME,
+    message: { ...data, username }
+  }, (error) => {
+    if (error) {
+      console.error('Error publishing message:', error);
+    } else {
+      console.log('Message sent:', data);
+    }
+  });
+}
+
 // Function to add messages to the chat window
 function addMessageToChat(message) {
   const messageElem = document.createElement('div');
-  messageElem.textContent = message;
-  messagesDiv.appendChild(messageElem);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom
-}
-
-// Function to update the list of online users
-function updateOnlineUsers(members) {
-  usersList.innerHTML = ''; // Clear the list first
-  members.forEach(member => {
-    const userElem = document.createElement('li');
-    userElem.textContent = member.clientId; // Display the clientId (you can customize this to show other details)
-    usersList.appendChild(userElem);
-  });
-}
-
-// Handle file upload
-function uploadFile() {
-  const fileInput = document.getElementById('fileUpload');
-  const file = fileInput.files[0];
-
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function(event) {
-      const fileData = event.target.result;
-      const filename = file.name;
-
-      // Send a message saying the file is uploaded
-      const message = `File uploaded: ${filename}`;
-      sendMessage(message);
-
-      // Create a download link for the file
-      const downloadLink = document.createElement('a');
-      downloadLink.href = fileData;
-      downloadLink.download = filename;
-      downloadLink.textContent = 'Download File';
-      downloadLink.classList.add('download-link');
-
-      // Append the download link to the message
-      const messageDiv = document.createElement('div');
-      messageDiv.textContent = message;
-      messageDiv.appendChild(downloadLink); // Add the download link to the message
-      messagesDiv.appendChild(messageDiv);
-      messagesDiv.scrollTop = messagesDiv.scrollHeight; // Scroll to the bottom
-    };
-    reader.readAsDataURL(file);
+  
+  if (message.type === 'text') {
+    messageElem.textContent = `${message.username}: ${message.text}`;
+  } else if (message.type === 'file') {
+    if (message.isImage) {
+      // Display image
+      messageElem.innerHTML = `${message.username} uploaded: <br><img src="${message.content}" alt="${message.filename}" style="max-width: 100%; border-radius: 8px;">`;
+    } else {
+      // Display file download link
+      messageElem.innerHTML = `${message.username} uploaded: <a href="${message.content}" download="${message.filename}">${message.filename}</a>`;
+    }
   }
-}
-
-// Function to send a message to the room
-function sendMessage(message) {
-  drone.publish({
-    room: ROOM_NAME,
-    message: { username, text: message }
-  });
+  
+  messagesDiv.appendChild(messageElem);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
