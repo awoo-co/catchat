@@ -5,7 +5,7 @@ const FILES_TO_CACHE = [
   '/index.html',
   '/style.css',
   '/script.js',
-  '/srrc/offline-image.jpg', // Add an offline image or any static assets you want to cache
+  '/src/offline-image.jpg', // Add an offline image or any static assets you want to cache
 ];
 
 // Install the service worker and cache files
