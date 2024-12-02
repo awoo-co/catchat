@@ -8,6 +8,9 @@ const fileInput = document.getElementById('fileInput');
 
 let username = generateRandomUsername();
 
+// Initialize IndexedDB for file storage
+const dbPromise = openIndexedDB();
+
 // Service Worker Registration for offline support
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/service-worker.js').then((registration) => {
@@ -51,31 +54,23 @@ inputField.addEventListener('keypress', (event) => {
   }
 });
 
-// Handle file upload
+// Handle file upload using IndexedDB
 fileInput.addEventListener('change', (event) => {
   const file = event.target.files[0];
   if (file) {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const fileData = reader.result;
-      console.log('File read successfully:', fileData);
-      
-      // Detect if the file is an image based on MIME type
-      const isImage = file.type.startsWith('image/');
+    // Store file in IndexedDB
+    storeFileInIndexedDB(file).then((fileId) => {
       sendMessage({
         type: 'file',
+        fileId: fileId,
         filename: file.name,
-        content: fileData,
         fileType: file.type,
-        isImage: isImage
       });
       alert('File uploaded: ' + file.name);
-    };
-    reader.onerror = () => {
-      console.error('File reading failed:', reader.error);
+    }).catch((error) => {
+      console.error('Failed to store file:', error);
       alert('File upload failed. Try again.');
-    };
-    reader.readAsDataURL(file);
+    });
   } else {
     alert('No file selected.');
   }
@@ -111,15 +106,91 @@ function addMessageToChat(message) {
   if (message.type === 'text') {
     messageElem.textContent = `${message.username}: ${message.text}`;
   } else if (message.type === 'file') {
-    if (message.isImage) {
-      // Display image
-      messageElem.innerHTML = `${message.username} uploaded: <br><img src="${message.content}" alt="${message.filename}" style="max-width: 100%; border-radius: 8px;">`;
-    } else {
-      // Display file download link
-      messageElem.innerHTML = `${message.username} uploaded: <a href="${message.content}" download="${message.filename}">${message.filename}</a>`;
-    }
+    getFileFromIndexedDB(message.fileId).then((file) => {
+      if (file) {
+        if (file.type.startsWith('image/')) {
+          // Display image
+          messageElem.innerHTML = `${message.username} uploaded: <br><img src="${URL.createObjectURL(file)}" alt="${message.filename}" style="max-width: 100%; border-radius: 8px;">`;
+        } else {
+          // Display file download link
+          messageElem.innerHTML = `${message.username} uploaded: <a href="${URL.createObjectURL(file)}" download="${message.filename}">${message.filename}</a>`;
+        }
+      } else {
+        messageElem.textContent = `${message.username} uploaded an invalid file.`;
+      }
+    }).catch(() => {
+      messageElem.textContent = `${message.username} uploaded an invalid file.`;
+    });
   }
   
   messagesDiv.appendChild(messageElem);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// IndexedDB functions
+
+// Open IndexedDB
+function openIndexedDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('CatchatFiles', 1);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('files')) {
+        db.createObjectStore('files', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+
+    request.onsuccess = (event) => {
+      resolve(event.target.result);
+    };
+
+    request.onerror = (event) => {
+      reject(event.target.error);
+    };
+  });
+}
+
+// Store file in IndexedDB
+function storeFileInIndexedDB(file) {
+  return dbPromise.then((db) => {
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction('files', 'readwrite');
+      const store = transaction.objectStore('files');
+      const fileData = {
+        filename: file.name,
+        type: file.type,
+        content: file,
+      };
+
+      const request = store.add(fileData);
+
+      request.onsuccess = () => {
+        resolve(request.result); // Return the ID of the stored file
+      };
+
+      request.onerror = (event) => {
+        reject(event.target.error);
+      };
+    });
+  });
+}
+
+// Retrieve file from IndexedDB
+function getFileFromIndexedDB(fileId) {
+  return dbPromise.then((db) => {
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction('files', 'readonly');
+      const store = transaction.objectStore('files');
+      const request = store.get(fileId);
+
+      request.onsuccess = (event) => {
+        resolve(event.target.result ? event.target.result.content : null);
+      };
+
+      request.onerror = (event) => {
+        reject(event.target.error);
+      };
+    });
+  });
 }
