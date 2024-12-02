@@ -8,9 +8,6 @@ const fileInput = document.getElementById('fileInput');
 
 let username = generateRandomUsername();
 
-// Initialize IndexedDB for file storage
-const dbPromise = openIndexedDB();
-
 // Service Worker Registration for offline support
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/service-worker.js').then((registration) => {
@@ -54,23 +51,31 @@ inputField.addEventListener('keypress', (event) => {
   }
 });
 
-// Handle file upload using IndexedDB
+// Handle file upload
 fileInput.addEventListener('change', (event) => {
   const file = event.target.files[0];
   if (file) {
-    // Store file in IndexedDB
-    storeFileInIndexedDB(file).then((fileId) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const fileData = reader.result;
+      console.log('File read successfully:', fileData);
+      
+      // Detect if the file is an image based on MIME type
+      const isImage = file.type.startsWith('image/');
       sendMessage({
         type: 'file',
-        fileId: fileId,
         filename: file.name,
+        content: fileData,
         fileType: file.type,
+        isImage: isImage
       });
       alert('File uploaded: ' + file.name);
-    }).catch((error) => {
-      console.error('Failed to store file:', error);
+    };
+    reader.onerror = () => {
+      console.error('File reading failed:', reader.error);
       alert('File upload failed. Try again.');
-    });
+    };
+    reader.readAsDataURL(file);
   } else {
     alert('No file selected.');
   }
@@ -90,107 +95,73 @@ function sendMessage(data) {
   drone.publish({
     room: ROOM_NAME,
     message: { ...data, username }
-  }, (error) => {
-    if (error) {
-      console.error('Error publishing message:', error);
-    } else {
-      console.log('Message sent:', data);
-    }
   });
 }
 
-// Function to add messages to the chat window
+// Function to add received messages to chat
 function addMessageToChat(message) {
-  const messageElem = document.createElement('div');
-  
+  const messageDiv = document.createElement('div');
   if (message.type === 'text') {
-    messageElem.textContent = `${message.username}: ${message.text}`;
+    messageDiv.textContent = `${message.username}: ${message.text}`;
   } else if (message.type === 'file') {
-    getFileFromIndexedDB(message.fileId).then((file) => {
-      if (file) {
-        if (file.type.startsWith('image/')) {
-          // Display image
-          messageElem.innerHTML = `${message.username} uploaded: <br><img src="${URL.createObjectURL(file)}" alt="${message.filename}" style="max-width: 100%; border-radius: 8px;">`;
-        } else {
-          // Display file download link
-          messageElem.innerHTML = `${message.username} uploaded: <a href="${URL.createObjectURL(file)}" download="${message.filename}">${message.filename}</a>`;
-        }
-      } else {
-        messageElem.textContent = `${message.username} uploaded an invalid file.`;
-      }
-    }).catch(() => {
-      messageElem.textContent = `${message.username} uploaded an invalid file.`;
-    });
+    messageDiv.innerHTML = `${message.username} sent a file: <a class="download-link" href="${message.content}" download="${message.filename}">Download ${message.filename}</a>`;
   }
-  
-  messagesDiv.appendChild(messageElem);
+  messagesDiv.appendChild(messageDiv);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-// IndexedDB functions
+// Reset button functionality
+const resetButton = document.getElementById('resetButton');
 
-// Open IndexedDB
-function openIndexedDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('CatchatFiles', 1);
+resetButton.addEventListener('click', () => {
+  // Clear IndexedDB
+  clearIndexedDB();
 
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains('files')) {
-        db.createObjectStore('files', { keyPath: 'id', autoIncrement: true });
-      }
-    };
+  // Clear service worker cache
+  clearServiceWorkerCache();
 
-    request.onsuccess = (event) => {
-      resolve(event.target.result);
-    };
+  // Reload the page
+  location.reload();
+});
 
-    request.onerror = (event) => {
-      reject(event.target.error);
-    };
-  });
+// Function to clear IndexedDB
+function clearIndexedDB() {
+  const request = indexedDB.deleteDatabase('CatchatFiles');
+  request.onsuccess = () => {
+    console.log('IndexedDB cleared successfully');
+  };
+  request.onerror = (event) => {
+    console.error('Failed to clear IndexedDB:', event.target.error);
+  };
 }
 
-// Store file in IndexedDB
-function storeFileInIndexedDB(file) {
-  return dbPromise.then((db) => {
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction('files', 'readwrite');
-      const store = transaction.objectStore('files');
-      const fileData = {
-        filename: file.name,
-        type: file.type,
-        content: file,
-      };
-
-      const request = store.add(fileData);
-
-      request.onsuccess = () => {
-        resolve(request.result); // Return the ID of the stored file
-      };
-
-      request.onerror = (event) => {
-        reject(event.target.error);
-      };
+// Function to clear the service worker cache
+function clearServiceWorkerCache() {
+  if ('serviceWorker' in navigator) {
+    // Unregister the service worker
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => {
+        registration.unregister().then(() => {
+          console.log('Service Worker unregistered successfully');
+        }).catch((error) => {
+          console.error('Failed to unregister service worker:', error);
+        });
+      });
     });
-  });
-}
 
-// Retrieve file from IndexedDB
-function getFileFromIndexedDB(fileId) {
-  return dbPromise.then((db) => {
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction('files', 'readonly');
-      const store = transaction.objectStore('files');
-      const request = store.get(fileId);
-
-      request.onsuccess = (event) => {
-        resolve(event.target.result ? event.target.result.content : null);
-      };
-
-      request.onerror = (event) => {
-        reject(event.target.error);
-      };
+    // Clear the cache
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cacheName) => {
+          return caches.delete(cacheName);
+        })
+      );
+    }).then(() => {
+      console.log('Service worker caches cleared');
+    }).catch((error) => {
+      console.error('Failed to clear service worker caches:', error);
     });
-  });
+  } else {
+    console.log('Service worker not supported');
+  }
 }

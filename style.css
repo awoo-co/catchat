@@ -147,3 +147,20 @@ body {
 .download-link:hover {
   background-color: #f078a6;
 }
+
+/* Reset Button */
+.reset-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px;
+  background-color: #ff7eb6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.reset-button:hover {
+  background-color: #f078a6;
+}
