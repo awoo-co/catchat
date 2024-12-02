@@ -102,6 +102,7 @@ function sendMessage(data) {
 function addMessageToChat(message) {
   const messageDiv = document.createElement('div');
   messageDiv.classList.add('message');
+  
   if (message.type === 'text') {
     messageDiv.textContent = `${message.username}: ${message.text}`;
   } else if (message.type === 'file') {
@@ -119,6 +120,7 @@ function addMessageToChat(message) {
       `;
     }
   }
+
   messagesDiv.appendChild(messageDiv);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
