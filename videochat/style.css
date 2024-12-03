@@ -1,9 +1,10 @@
-body{
-    background: rgb(0,0,0);
-    background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(143,143,143,1) 100%);
-   font-family: 'Roboto', sans-serif;
-}
-
+body {
+    background-color: #0f0f0f;
+    font-family: Arial, sans-serif;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+  }
 h1{
     text-align: center;
     color: white;

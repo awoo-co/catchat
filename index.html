@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catchat</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
   <div id="chat-container">
@@ -19,15 +20,11 @@
         <input type="file" id="fileInput" style="display:none;">
       </div>
     </div>
-  
     <div class="offline-image-container">
-      <img src="offline-picture.png" alt="Offline" class="offline-image">
+      <img src="src/offline-picture.png" alt="Offline" class="offline-image">
       <div class="hover-text">Will be sent when connected to WiFi</div>
     </div>
-    
   </div>
-
-  <!-- Add ScaleDrone script here -->
   <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
   <script src="script.js"></script>
 </body>
