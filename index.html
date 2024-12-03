@@ -14,10 +14,20 @@
       </div>
 
       <div id="inputContainer" class="message-form">
-        <button id="uploadButton" class="message-form__upload-button">Upload</button>
-        <input type="file" id="fileInput" style="display: none;">
-        <input type="text" id="input" class="message-form__input" placeholder="Type your message..." />
-        <button id="sendButton" class="message-form__button">Send</button>
+        <!-- Add a form to handle message submissions -->
+        <form name="catchatForm" method="POST" netlify>
+          <input type="hidden" name="form-name" value="catchatForm" />
+          
+          <!-- Input for text messages -->
+          <input type="text" name="message" id="input" class="message-form__input" placeholder="Type your message..." />
+          
+          <!-- Upload button -->
+          <button id="uploadButton" class="message-form__upload-button">Upload</button>
+          <input type="file" id="fileInput" style="display: none;" name="file" />
+          
+          <!-- Send button -->
+          <button type="submit" class="message-form__button">Send</button>
+        </form>
       </div>
     </div>
   </div>
