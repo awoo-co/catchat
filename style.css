@@ -80,3 +80,46 @@ button:hover {
 .download-link:hover {
   text-decoration: underline;
 }
+
+
+/* Container for the offline image */
+.offline-image-container {
+  position: relative;
+  display: inline-block;
+  width: 100%; /* You can adjust the width and height as needed */
+  max-width: 500px;
+}
+
+/* Style the image */
+.offline-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+/* Hidden by default */
+.hover-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 5px;
+  display: none;
+  font-size: 14px;
+}
+
+/* Hover effect */
+.offline-image-container:hover .hover-text {
+  display: block; /* Show the text on hover */
+  opacity: 1;
+}
+
+/* Optional: To show the image as slightly dimmed when offline */
+.offline-image.offline {
+  filter: grayscale(80%) brightness(60%);
+}
