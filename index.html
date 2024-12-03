@@ -5,36 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catchat</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="/icons/icon-192.png" />
 </head>
-<body>
+<body class="dark-mode"> <!-- Always apply dark mode by adding this class -->
   <div id="app">
-    <div id="messages"></div>
-    <input type="text" id="input" placeholder="Type your message..." />
-    <button id="sendButton">Send</button>
-    <input type="file" id="fileInput" style="display: none;" />
-    <button id="uploadButton">Upload File</button>
-    <div class="offline-image-container">You are offline</div>
+    <div id="buttons">
+      <button id="uploadButton">Upload File</button>
+    </div>
+    
+    <div id="chatContainer">
+      <div id="messages"></div>
+      
+      <div id="inputContainer">
+        <input type="text" id="input" placeholder="Type your message..." />
+        <button id="sendButton">Send</button>
+      </div>
+    </div>
   </div>
 
+  <!-- Load ScaleDrone CDN -->
   <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
   <script src="https://static.filestackapi.com/filestack-js/3.35.4/filestack.min.js"></script>
   <script src="script.js"></script>
-
-  <!-- Register Service Worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-          .then(registration => {
-            console.log('Service Worker registered with scope:', registration.scope);
-          })
-          .catch(error => {
-            console.error('Service Worker registration failed:', error);
-          });
-      });
-    }
-  </script>
 </body>
 </html>
