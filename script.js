@@ -5,48 +5,42 @@ const filestackApiKey = 'A8Kzo8mSSkWxnuNmfkHbLz';
 let db;
 const request = indexedDB.open('CatchatDB', 1);
 
-request.onerror = function(event) {
-  console.error('Error opening IndexedDB:', event);
+request.onerror = function (event) {
+  console.error('Error opening IndexedDB:', event.target.error);
+  alert('Failed to open IndexedDB. Please reload the page.');
 };
 
-request.onsuccess = function(event) {
+request.onsuccess = function (event) {
   db = event.target.result;
   console.log('IndexedDB opened successfully');
   loadMessages(); // Load saved messages when the database is ready
 };
 
-request.onupgradeneeded = function(event) {
+request.onupgradeneeded = function (event) {
   db = event.target.result;
 
-  // Create an object store for messages
   if (!db.objectStoreNames.contains('messages')) {
     db.createObjectStore('messages', { keyPath: 'id', autoIncrement: true });
   }
 
-  // Create an object store for uploaded files
   if (!db.objectStoreNames.contains('files')) {
     db.createObjectStore('files', { keyPath: 'id', autoIncrement: true });
   }
 };
 
-// Function to generate a random nickname
+// Generate random nickname and color
 function generateRandomNickname() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let nickname = '';
-  for (let i = 0; i < 10; i++) { // 10-character nickname
-    nickname += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return nickname;
+  return Array.from({ length: 10 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
 }
 
-// Function to generate random color
 function getRandomColor() {
-  return '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16);
+  return '#' + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0');
 }
 
 const drone = new ScaleDrone(CLIENT_ID, {
   data: {
-    name: generateRandomNickname(),  // Ensure a random name is generated on connection
+    name: generateRandomNickname(),
     color: getRandomColor(),
   },
 });
@@ -57,10 +51,11 @@ let members = [];
 drone.on('open', error => {
   if (error) {
     console.error('Connection Error:', error);
+    alert('Failed to connect to the chat server.');
     return;
   }
   console.log('Successfully connected to Scaledrone');
-  const room = drone.subscribe('catchat1');  // Ensure this matches your room name
+  const room = drone.subscribe('catchat1');
   room.on('open', error => {
     if (error) {
       console.error('Room Error:', error);
@@ -69,74 +64,44 @@ drone.on('open', error => {
     }
   });
 
-  room.on('members', m => {
-    members = m;
-  });
-
-  room.on('member_join', member => {
-    console.log('New member joined:', member.clientData);  // Debug log to check the nickname
-    members.push(member);
-  });
-
-  room.on('member_leave', ({ id }) => {
-    const index = members.findIndex(member => member.id === id);
-    members.splice(index, 1);
-  });
+  room.on('members', m => { members = m; });
+  room.on('member_join', member => { members.push(member); });
+  room.on('member_leave', ({ id }) => { members = members.filter(m => m.id !== id); });
 
   room.on('data', (message, member) => {
-    console.log('Received message:', message); // Debug log to check if messages are received
-    if (member) {
-      console.log('Member clientData on message:', member.clientData); // Log member data
-    }
-
-    if (message) {
-      addMessageToDOM(message, member);
-    } else {
-      console.log('Message from server:', message);
-    }
+    console.log('Received message:', message);
+    addMessageToDOM(message, member);
   });
 });
 
 // Event Listeners
-window.onload = function() {
+window.onload = function () {
   const sendButton = document.querySelector('#sendButton');
   const inputField = document.querySelector('#input');
   const uploadButton = document.querySelector('#uploadButton');
   const fileInput = document.querySelector('#fileInput');
 
-  // Send message on button click
   sendButton.addEventListener('click', sendMessage);
-
-  // Send message when Enter key is pressed
   inputField.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-      sendMessage();
-    }
+    if (event.key === 'Enter') sendMessage();
   });
 
-  // Upload file when the upload button is clicked
-  uploadButton.addEventListener('click', () => {
-    fileInput.click();
-  });
-
-  // Handle file input change event
+  uploadButton.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', handleFileUpload);
 };
 
-// Send message function
+// Send message function with debounce
+let lastSent = 0;
 function sendMessage() {
-  const message = document.querySelector('#input').value;
-  if (message === '') return;
-  console.log('Sending message:', message); // Debug log
-  document.querySelector('#input').value = ''; // Clear input field after sending
+  const message = document.querySelector('#input').value.trim();
+  if (message && Date.now() - lastSent > 500) {
+    lastSent = Date.now();
+    console.log('Sending message:', message);
+    document.querySelector('#input').value = '';
 
-  drone.publish({
-    room: 'catchat1',
-    message: message,
-  });
-
-  // Store message in IndexedDB
-  storeMessageInIndexedDB(message);
+    drone.publish({ room: 'catchat1', message });
+    storeMessageInIndexedDB(message);
+  }
 }
 
 // Add message to the DOM
@@ -144,19 +109,12 @@ function addMessageToDOM(message, member) {
   const messageElement = document.createElement('div');
   messageElement.classList.add('message');
 
-  console.log('Adding message to DOM:', message);  // Log the message before appending
-
-  // Check if the message contains a URL (likely the file upload URL)
-  const urlMatch = message.match(/https?:\/\/[^\s]+/); // Regular expression for matching URLs
+  const urlMatch = message.match(/https?:\/\/[^\s]+/);
   if (urlMatch) {
-    const url = urlMatch[0]; // Extract the URL from the message
-    messageElement.innerHTML = `<strong>File:</strong> <a href="${url}" target="_blank">Click to view the file</a>`;
-  } else if (member && member.clientData && member.clientData.name) {
-    // Message from a user
-    messageElement.innerHTML = `<strong>${member.clientData.name}</strong>: ${message}`;
+    const url = urlMatch[0];
+    messageElement.innerHTML = `<strong>File:</strong> <a href="${url}" target="_blank" style="color: white;">Click to view</a>`;
   } else {
-    // Message from server (no member data)
-    messageElement.innerHTML = `<strong>Server</strong>: ${message}`;
+    messageElement.innerHTML = member ? `<strong>${member.clientData.name}</strong>: ${message}` : `<strong>Server</strong>: ${message}`;
   }
 
   document.querySelector('#messages').appendChild(messageElement);
@@ -166,76 +124,44 @@ function addMessageToDOM(message, member) {
 // Store message in IndexedDB
 function storeMessageInIndexedDB(message) {
   const transaction = db.transaction(['messages'], 'readwrite');
-  const store = transaction.objectStore('messages');
-  store.add({ message: message, timestamp: new Date().toISOString() });
-
-  transaction.oncomplete = function() {
-    console.log('Message saved to IndexedDB:', message);
-  };
-
-  transaction.onerror = function(event) {
-    console.error('Error saving message to IndexedDB:', event);
-  };
+  transaction.objectStore('messages').add({ message, timestamp: new Date().toISOString() });
+  transaction.onerror = event => console.error('Error saving message to IndexedDB:', event.target.error);
 }
 
-// Handle file upload
+// Handle file upload with Filestack
 function handleFileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
 
-  // Using Filestack to upload file (no restriction on file type)
   const client = filestack.init(filestackApiKey);
   client.upload(file)
     .then(res => {
       console.log('File uploaded successfully:', res);
-      sendMessageWithFile(res.url);  // Send file URL as a message
-      storeFileInIndexedDB(res.url); // Store the file URL in IndexedDB
+      sendMessageWithFile(res.url);
+      storeFileInIndexedDB(res.url);
     })
     .catch(err => {
       console.error('File upload error:', err);
+      alert('Failed to upload the file. Please try again.');
     });
 }
 
-// Send message with uploaded file URL
 function sendMessageWithFile(url) {
   const message = `File uploaded: ${url}`;
-  drone.publish({
-    room: 'catchat1',
-    message: message,
-  });
-  // Store message in IndexedDB
+  drone.publish({ room: 'catchat1', message });
   storeMessageInIndexedDB(message);
 }
 
 // Store uploaded file URL in IndexedDB
 function storeFileInIndexedDB(fileUrl) {
   const transaction = db.transaction(['files'], 'readwrite');
-  const store = transaction.objectStore('files');
-  store.add({ url: fileUrl, timestamp: new Date().toISOString() });
-
-  transaction.oncomplete = function() {
-    console.log('File URL saved to IndexedDB:', fileUrl);
-  };
-
-  transaction.onerror = function(event) {
-    console.error('Error saving file URL to IndexedDB:', event);
-  };
+  transaction.objectStore('files').add({ url: fileUrl, timestamp: new Date().toISOString() });
+  transaction.onerror = event => console.error('Error saving file URL to IndexedDB:', event.target.error);
 }
 
 // Load saved messages from IndexedDB
 function loadMessages() {
-  const transaction = db.transaction(['messages'], 'readonly');
-  const store = transaction.objectStore('messages');
-  const request = store.getAll();
-
-  request.onsuccess = function(event) {
-    const messages = event.target.result;
-    messages.forEach(msg => {
-      addMessageToDOM(msg.message); // Display each message
-    });
-  };
-
-  request.onerror = function(event) {
-    console.error('Error loading messages from IndexedDB:', event);
-  };
+  const request = db.transaction(['messages'], 'readonly').objectStore('messages').getAll();
+  request.onsuccess = event => event.target.result.forEach(msg => addMessageToDOM(msg.message));
+  request.onerror = event => console.error('Error loading messages from IndexedDB:', event.target.error);
 }
