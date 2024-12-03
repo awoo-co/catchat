@@ -8,22 +8,13 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
-  <div id="chat-container">
-    <div id="message-panel">
-      <div id="messages"></div>
-    </div>
-    <div id="input-panel">
-      <div id="input-container">
-        <input type="text" id="input" placeholder="Type a message...">
-        <button class="file-button">Upload</button>
-        <button id="resetButton">Reset</button>
-        <input type="file" id="fileInput" style="display:none;">
-      </div>
-    </div>
-    <div class="offline-image-container">
-      <img src="src/offline-picture.png" alt="Offline" class="offline-image">
-      <div class="hover-text">Will be sent when connected to WiFi</div>
-    </div>
+  <div id="app">
+    <div id="messages"></div>
+    <input type="text" id="input" placeholder="Type your message..." />
+    <button id="reopenChatButton">Reopen Chat</button>
+    <input type="file" id="fileInput" style="display:none" />
+    <label for="fileInput" id="fileUploadLabel">Upload File</label>
+    <div class="offline-image-container">You are offline</div>
   </div>
   <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
   <script src="script.js"></script>
