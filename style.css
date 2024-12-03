@@ -50,6 +50,16 @@ body {
   border-radius: 8px;
 }
 
+/* Style links in the chat to be white */
+.message a {
+  color: white !important;
+  text-decoration: none;  /* Removes the default underline */
+}
+
+.message a:hover {
+  text-decoration: underline;  /* Adds an underline when the link is hovered */
+}
+
 #inputContainer {
   display: flex;
   justify-content: flex-start;
