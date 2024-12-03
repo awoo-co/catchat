@@ -17,7 +17,7 @@ drone.on('open', error => {
     return;
   }
   console.log('Successfully connected to Scaledrone');
-  const room = drone.subscribe('catchat1');
+  const room = drone.subscribe('catchat1');  // Ensure this matches your room name
   room.on('open', error => {
     if (error) {
       console.error('Room Error:', error);

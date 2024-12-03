@@ -6,23 +6,31 @@
   <title>Catchat</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="dark-mode"> <!-- Always apply dark mode by adding this class -->
+<body class="dark-mode">
   <div id="app">
     <div id="buttons">
       <button id="uploadButton">Upload File</button>
     </div>
-    
+
     <div id="chatContainer">
-      <div id="messages"></div>
+      <!-- Member count section -->
+      <div class="members-count">
+        <span>0 users in room</span>
+      </div>
       
-      <div id="inputContainer">
-        <input type="text" id="input" placeholder="Type your message..." />
-        <button id="sendButton">Send</button>
+      <!-- Messages section -->
+      <div id="messages" class="messages">
+        <!-- Messages will be dynamically added here -->
+      </div>
+
+      <!-- Message input and send button -->
+      <div id="inputContainer" class="message-form">
+        <input type="text" id="input" class="message-form__input" placeholder="Type your message..." />
+        <button id="sendButton" class="message-form__button">Send</button>
       </div>
     </div>
   </div>
 
-  <!-- Load ScaleDrone CDN -->
   <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
   <script src="https://static.filestackapi.com/filestack-js/3.35.4/filestack.min.js"></script>
   <script src="script.js"></script>
