@@ -52,8 +52,9 @@ body {
 
 #inputContainer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
+  gap: 10px; /* Adjust gap between elements */
 }
 
 #input {
@@ -63,11 +64,10 @@ body {
   border: 1px solid #444;
   background-color: #444;
   color: #fff;
-  margin-right: 10px;
 }
 
-#sendButton {
-  padding: 10px 20px;
+#sendButton, #uploadButton {
+  padding: 12px 20px;
   border-radius: 8px;
   border: none;
   background-color: #007bff;
@@ -75,71 +75,67 @@ body {
   cursor: pointer;
 }
 
-#sendButton:hover {
+#sendButton:hover, #uploadButton:hover {
   background-color: #0056b3;
 }
 
 #uploadButton {
-  padding: 10px 20px;
-  border-radius: 8px;
   background-color: #28a745;
-  color: #fff;
-  cursor: pointer;
 }
 
 #uploadButton:hover {
   background-color: #218838;
 }
 
-/* Button container */
-#buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-right: 20px;
-}
-
-#buttons button {
-  background-color: #444;
-  color: #e0e0e0;
-  border: 1px solid #555;
-  padding: 10px;
-  margin: 5px 0;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-#buttons button:hover {
-  background-color: #555;
-}
-
-/* Offline message */
-.offline-image-container {
-  display: none;
-  color: #ff6b6b;
-  background-color: #333;
-  padding: 10px;
-  border-radius: 8px;
-  margin-top: 20px;
-  text-align: center;
-  font-size: 18px;
-}
-
-.dark-mode {
-  background-color: #181818;
-  color: #e0e0e0;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
-  #app {
-    flex-direction: column;
-    height: auto;
+  /* Adjust layout for smaller screens (tablet, mobile) */
+  #chatContainer {
+    width: 100%;
+    height: 100%;
   }
 
-  #buttons {
-    flex-direction: row;
-    justify-content: space-between;
-    margin-bottom: 20px;
+  #inputContainer {
+    flex-direction: column; /* Stack buttons and text input vertically */
+    align-items: stretch;
+  }
+
+  #input {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px; /* Increase font size for better readability */
+  }
+
+  #sendButton, #uploadButton {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px; /* Larger buttons for better touch interaction */
+  }
+
+  #messages {
+    padding: 20px;
+    font-size: 16px; /* Larger text in message container */
+  }
+
+  .message {
+    font-size: 16px; /* Larger text for individual messages */
+    padding: 15px;  /* Increased padding */
+  }
+}
+
+@media (max-width: 480px) {
+  /* Adjust for very small screens (e.g., mobile devices) */
+  #input {
+    padding: 15px;
+    font-size: 18px; /* Increase font size even more */
+  }
+
+  #sendButton, #uploadButton {
+    padding: 18px;
+    font-size: 18px; /* Bigger buttons for touch screen devices */
+  }
+
+  .message {
+    font-size: 18px; /* Larger font size in messages */
   }
 }

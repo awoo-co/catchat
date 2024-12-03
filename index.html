@@ -8,25 +8,14 @@
 </head>
 <body class="dark-mode">
   <div id="app">
-    <div id="buttons">
-      <button id="uploadButton">Upload File</button>
-      <!-- Hidden file input element -->
-      <input type="file" id="fileInput" style="display: none;" />
-    </div>
-
     <div id="chatContainer">
-      <!-- Member count section -->
-      <div class="members-count">
-        <span>0 users in room</span>
-      </div>
-      
-      <!-- Messages section -->
       <div id="messages" class="messages">
         <!-- Messages will be dynamically added here -->
       </div>
 
-      <!-- Message input and send button -->
       <div id="inputContainer" class="message-form">
+        <button id="uploadButton" class="message-form__upload-button">Upload</button>
+        <input type="file" id="fileInput" style="display: none;">
         <input type="text" id="input" class="message-form__input" placeholder="Type your message..." />
         <button id="sendButton" class="message-form__button">Send</button>
       </div>

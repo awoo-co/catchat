@@ -18,7 +18,7 @@ function getRandomColor() {
 
 const drone = new ScaleDrone(CLIENT_ID, {
   data: {
-    name: generateRandomNickname(),
+    name: generateRandomNickname(),  // Ensure a random name is generated on connection
     color: getRandomColor(),
   },
 });
@@ -43,31 +43,34 @@ drone.on('open', error => {
 
   room.on('members', m => {
     members = m;
-    updateMembersDOM();
   });
 
   room.on('member_join', member => {
-    console.log('New member joined:', member.clientData);
+    console.log('New member joined:', member.clientData);  // Debug log to check the nickname
     members.push(member);
-    updateMembersDOM();
   });
 
   room.on('member_leave', ({ id }) => {
     const index = members.findIndex(member => member.id === id);
     members.splice(index, 1);
-    updateMembersDOM();
   });
 
   room.on('data', (message, member) => {
-    console.log('Received message:', message);
+    console.log('Received message:', message); // Debug log to check if messages are received
+    if (member) {
+      console.log('Member clientData on message:', member.clientData); // Log member data
+    }
+
     if (message) {
       addMessageToDOM(message, member);
+    } else {
+      console.log('Message from server:', message);
     }
   });
 });
 
 // Event Listeners
-document.addEventListener('DOMContentLoaded', () => {
+window.onload = function() {
   const sendButton = document.querySelector('#sendButton');
   const inputField = document.querySelector('#input');
   const uploadButton = document.querySelector('#uploadButton');
@@ -90,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Handle file input change event
   fileInput.addEventListener('change', handleFileUpload);
-});
+};
 
 // Send message function
 function sendMessage() {
@@ -105,12 +108,6 @@ function sendMessage() {
   });
 }
 
-// Update member count in DOM
-function updateMembersDOM() {
-  const membersCount = document.querySelector('.members-count');
-  membersCount.innerText = `${members.length} users in room:`;
-}
-
 // Add message to the DOM
 function addMessageToDOM(message, member) {
   const messageElement = document.createElement('div');
@@ -120,46 +117,35 @@ function addMessageToDOM(message, member) {
 
   // Check if member exists and has clientData
   if (member && member.clientData && member.clientData.name) {
-    messageElement.innerHTML = `<strong style="color: ${member.clientData.color}">${member.clientData.name}:</strong> ${message}`;
+    // Message from a user
+    messageElement.innerHTML = `<strong>${member.clientData.name}</strong>: ${message}`;
   } else {
-    messageElement.innerHTML = `<strong>Server:</strong> ${message}`;
+    // Message from server (no member data)
+    messageElement.innerHTML = `<strong>Server</strong>: ${message}`;
   }
 
-  const messagesContainer = document.querySelector('#messages');
-  messagesContainer.appendChild(messageElement);
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  document.querySelector('#messages').appendChild(messageElement);
+  document.querySelector('#messages').scrollTop = document.querySelector('#messages').scrollHeight;
 }
 
 // Handle file upload
 function handleFileUpload(event) {
   const file = event.target.files[0];
-  if (!file) {
-    console.log('No file selected');
-    return;
-  }
+  if (!file) return;
 
-  console.log('Uploading file:', file);
-
-  // Initialize Filestack client
+  // Using Filestack to upload file
   const client = filestack.init(filestackApiKey);
-
-  // Upload the file
-  client.upload(file).then(result => {
-    console.log('File uploaded successfully:', result); // Log the successful file upload
-    const fileUrl = result.url;
-
-    // Send message with file URL
-    sendMessageWithFile(fileUrl);
-  }).catch(error => {
-    console.error('File upload failed:', error); // Log the error if upload fails
-  });
+  client.upload(file)
+    .then(res => {
+      console.log('File uploaded successfully:', res);
+      sendMessageWithFile(res.url);
+    })
+    .catch(err => {
+      console.error('File upload error:', err);
+    });
 }
 
-// Send a message with the file URL
-function sendMessageWithFile(fileUrl) {
-  console.log('Sending message with file URL:', fileUrl);  // Debug log before publishing the message
-  drone.publish({
-    room: 'catchat1',
-    message: `<a href="${fileUrl}" target="_blank">Click to view file</a>`,
-  });
+function sendMessageWithFile(url) {
+  const message = `File uploaded: ${url}`;
+  sendMessage(message);
 }
