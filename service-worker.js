@@ -1,14 +1,13 @@
-// Cache version and files to cache
 const CACHE_NAME = 'catchat-cache-v1';
 const FILES_TO_CACHE = [
   '/',
   '/index.html',
   '/style.css',
   '/script.js',
-  '/src/offline-image.jpg', // Add an offline image or any static assets you want to cache
+  '/src/offline-image.jpg',
 ];
 
-// Install the service worker and cache files
+// Install Service Worker and Cache Files
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -18,7 +17,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate the service worker and delete old caches
+// Activate Service Worker and Clean Old Caches
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -34,7 +33,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event to serve cached files and enable offline functionality
+// Fetch event to serve cached files
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
