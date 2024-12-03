@@ -18,7 +18,7 @@ function getRandomColor() {
 
 const drone = new ScaleDrone(CLIENT_ID, {
   data: {
-    name: generateRandomNickname(),  // Ensure a random name is generated on connection
+    name: generateRandomNickname(),
     color: getRandomColor(),
   },
 });
@@ -47,7 +47,7 @@ drone.on('open', error => {
   });
 
   room.on('member_join', member => {
-    console.log('New member joined:', member.clientData);  // Debug log to check the nickname
+    console.log('New member joined:', member.clientData);
     members.push(member);
     updateMembersDOM();
   });
@@ -59,15 +59,9 @@ drone.on('open', error => {
   });
 
   room.on('data', (message, member) => {
-    console.log('Received message:', message); // Debug log to check if messages are received
-    if (member) {
-      console.log('Member clientData on message:', member.clientData); // Log member data
-    }
-
+    console.log('Received message:', message);
     if (message) {
       addMessageToDOM(message, member);
-    } else {
-      console.log('Message from server:', message);
     }
   });
 });
@@ -126,37 +120,39 @@ function addMessageToDOM(message, member) {
 
   // Check if member exists and has clientData
   if (member && member.clientData && member.clientData.name) {
-    // Message from a user
-    messageElement.innerHTML = `<strong>${member.clientData.name}</strong>: ${message}`;
+    messageElement.innerHTML = `<strong style="color: ${member.clientData.color}">${member.clientData.name}:</strong> ${message}`;
   } else {
-    // Message from server (no member data)
-    messageElement.innerHTML = `<strong>Server</strong>: ${message}`;
+    messageElement.innerHTML = `<strong>Server:</strong> ${message}`;
   }
 
-  document.querySelector('#messages').appendChild(messageElement);
-  document.querySelector('#messages').scrollTop = document.querySelector('#messages').scrollHeight;
+  const messagesContainer = document.querySelector('#messages');
+  messagesContainer.appendChild(messageElement);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
 // Handle file upload
-function handleFileUpload() {
-  const file = document.querySelector('#fileInput').files[0];
+function handleFileUpload(event) {
+  const file = event.target.files[0];
   if (!file) {
-    console.log('No file selected');  // Debug log for no file selected
+    console.log('No file selected');
     return;
   }
 
-  console.log('Uploading file:', file);  // Debug log to confirm file is being selected
+  console.log('Uploading file:', file);
 
+  // Initialize Filestack client
   const client = filestack.init(filestackApiKey);
-  client.upload(file)
-    .then(result => {
-      console.log('File uploaded successfully:', result); // Debug log to check the file upload result
-      const fileUrl = result.url;
-      sendMessageWithFile(fileUrl);
-    })
-    .catch(error => {
-      console.error('File upload failed:', error);  // Debug log for errors
-    });
+
+  // Upload the file
+  client.upload(file).then(result => {
+    console.log('File uploaded successfully:', result); // Log the successful file upload
+    const fileUrl = result.url;
+
+    // Send message with file URL
+    sendMessageWithFile(fileUrl);
+  }).catch(error => {
+    console.error('File upload failed:', error); // Log the error if upload fails
+  });
 }
 
 // Send a message with the file URL
