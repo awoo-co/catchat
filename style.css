@@ -76,24 +76,52 @@ body {
   color: #fff;
 }
 
-#sendButton, #uploadButton {
+#sendButton, #uploadButton, #downloadButton, #fileUploadButton {
   padding: 12px 20px;
   border-radius: 8px;
   border: none;
-  background-color: #007bff;
-  color: #fff;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-#sendButton:hover, #uploadButton:hover {
-  background-color: #0056b3;
+#sendButton {
+  background-color: #444; /* Darker background to fit the dark theme */
+  color: #e0e0e0; /* Lighter text color */
+}
+
+#sendButton:hover {
+  background-color: #555; /* Slightly lighter when hovered */
 }
 
 #uploadButton {
   background-color: #28a745;
+  color: #fff;
 }
 
 #uploadButton:hover {
+  background-color: #218838;
+}
+
+#downloadButton {
+  background-color: #007bff;
+  color: #fff;
+}
+
+#downloadButton:hover {
+  background-color: #0056b3;
+}
+
+/* File input button styling */
+#fileInput {
+  display: none; /* Hide the default file input */
+}
+
+#fileUploadButton {
+  background-color: #28a745;
+  color: #fff;
+}
+
+#fileUploadButton:hover {
   background-color: #218838;
 }
 
@@ -116,7 +144,7 @@ body {
     font-size: 16px; /* Increase font size for better readability */
   }
 
-  #sendButton, #uploadButton {
+  #sendButton, #uploadButton, #downloadButton, #fileUploadButton {
     width: 100%;
     padding: 15px;
     font-size: 16px; /* Larger buttons for better touch interaction */
@@ -140,7 +168,7 @@ body {
     font-size: 18px; /* Increase font size even more */
   }
 
-  #sendButton, #uploadButton {
+  #sendButton, #uploadButton, #downloadButton, #fileUploadButton {
     padding: 18px;
     font-size: 18px; /* Bigger buttons for touch screen devices */
   }
