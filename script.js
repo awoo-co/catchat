@@ -81,6 +81,7 @@ drone.on('open', error => {
   });
 });
 
+// Called when the page is loaded
 window.onload = function() {
   const sendButton = document.querySelector('#sendButton');
   const inputField = document.querySelector('#input');
@@ -115,6 +116,7 @@ function notify(message) {
   if (Notification.permission === 'granted') {
     new Notification(message);
   } else {
+    // Fallback: Show an in-page notification if permission is denied or default
     const notification = document.createElement('div');
     notification.classList.add('notification');
     notification.textContent = message;
