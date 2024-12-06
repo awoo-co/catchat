@@ -77,11 +77,13 @@ drone.on('open', error => {
   
   room.on('data', (message, member) => {
     addMessageToDOM(message, member);
-    if (member) notify(`New message from ${member.clientData.name}`);
+    if (member) {
+      notify(`New message from ${member.clientData.name}`);
+      playAudio();  // Play audio when a message arrives
+    }
   });
 });
 
-// Called when the page is loaded
 window.onload = function() {
   const sendButton = document.querySelector('#sendButton');
   const inputField = document.querySelector('#input');
@@ -116,7 +118,6 @@ function notify(message) {
   if (Notification.permission === 'granted') {
     new Notification(message);
   } else {
-    // Fallback: Show an in-page notification if permission is denied or default
     const notification = document.createElement('div');
     notification.classList.add('notification');
     notification.textContent = message;
@@ -132,6 +133,7 @@ function sendMessage() {
     drone.publish({ room: 'catchat1', message });
     storeMessageInIndexedDB(message);
     clearInputField();
+    playAudio();  // Play audio when the user sends a message
   }
 }
 
@@ -203,4 +205,13 @@ function sendMessageWithFile(url, file) {
   }
   drone.publish({ room: 'catchat1', message });
   storeMessageInIndexedDB(message);
+}
+
+// Play the notification sound (ding.mp3)
+function playAudio() {
+  const audio = new Audio('src/ding.mp3'); // Ensure the correct path to the audio file
+  audio.play()
+    .catch(err => {
+      console.error('Error playing sound:', err);
+    });
 }

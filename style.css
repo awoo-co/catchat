@@ -30,16 +30,18 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
+  height: 100%; /* Ensure chat container fills available height */
 }
 
 #messages {
-  flex: 1;
+  flex-grow: 1; /* Allow messages to take up available space */
   overflow-y: auto;
   margin-bottom: 20px;
   background-color: #333;
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #444;
+  max-height: calc(100% - 60px); /* Prevent messages from going off-screen */
 }
 
 .message {
@@ -65,6 +67,7 @@ body {
   justify-content: flex-start;
   align-items: center;
   gap: 10px; /* Adjust gap between elements */
+  margin-top: 10px; /* Space between messages and input */
 }
 
 #input {
