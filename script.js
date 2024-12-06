@@ -1,4 +1,3 @@
-// Filestack API Key and IndexedDB setup
 const CLIENT_ID = 'VcFdeFedyz6Pcbkw';
 const filestackApiKey = 'A8Kzo8mSSkWxnuNmfkHbLz';
 
@@ -14,7 +13,7 @@ request.onerror = function(event) {
 request.onsuccess = function(event) {
   db = event.target.result;
   console.log('IndexedDB opened successfully');
-  loadMessages(); // Load saved messages when the database is ready
+  loadMessages();
 };
 
 request.onupgradeneeded = function(event) {
@@ -22,25 +21,11 @@ request.onupgradeneeded = function(event) {
   if (!db.objectStoreNames.contains('messages')) {
     db.createObjectStore('messages', { keyPath: 'id', autoIncrement: true });
   }
-  if (!db.objectStoreNames.contains('files')) {
-    db.createObjectStore('files', { keyPath: 'id', autoIncrement: true });
-  }
 };
 
 // Nickname generator
-const words = [
-  "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliet",
-  "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", "Tango",
-  "Uniform", "Victor", "Whiskey", "X-ray", "Yankee", "Zulu", "Adventurous", "Brave", "Curious",
-  "Determined", "Energetic", "Fearless", "Gracious", "Hopeful", "Innovative", "Joyful", "Kindhearted",
-  "Loyal", "Mighty", "Noble", "Optimistic", "Pioneering", "Quick-witted", "Resilient", "Strong",
-  "Thoughtful", "Unique", "Vigilant", "Wise", "Xenial", "Young", "Zealous", "Atlas", "Bison", "Cheetah",
-  // Add up to 200 words...
-];
-
+const words = ["Alpha", "Bravo", "Charlie", "Delta", "Echo"];
 const numbers = Array.from({ length: 200 }, (_, i) => i + 1);
-
-// Generate random nickname
 function generateNickname() {
   const randomWord = words[Math.floor(Math.random() * words.length)];
   const randomNumber = numbers[Math.floor(Math.random() * numbers.length)];
@@ -51,8 +36,23 @@ function generateNickname() {
 const drone = new ScaleDrone(CLIENT_ID, {
   data: { name: generateNickname(), color: '#ff6600' }
 });
-
 let members = [];
+
+// Check for notification permission
+function requestNotificationPermission() {
+  if ('Notification' in window) {
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          console.log('Notification permission granted.');
+        } else {
+          console.log('Notification permission denied.');
+        }
+      });
+    }
+  }
+}
+
 drone.on('open', error => {
   if (error) {
     console.error('Connection Error:', error);
@@ -61,86 +61,95 @@ drone.on('open', error => {
   }
   console.log('Successfully connected to Scaledrone');
   const room = drone.subscribe('catchat1');
+  
   room.on('open', error => {
-    if (error) {
-      console.error('Room Error:', error);
-    } else {
-      console.log('Successfully joined room');
-    }
+    if (error) console.error('Room Error:', error);
+    else console.log('Successfully joined room');
   });
 
+  room.on('members', m => {
+    members = m;
+    notify(`${members.length} users are now connected.`);
+  });
+
+  room.on('member_join', member => notify(`${member.clientData.name} has joined!`));
+  room.on('member_leave', member => notify(`${member.clientData.name} has left.`));
+  
   room.on('data', (message, member) => {
-    console.log('Received message:', message);
     addMessageToDOM(message, member);
+    if (member) notify(`New message from ${member.clientData.name}`);
   });
 });
 
-// Event Listeners
 window.onload = function() {
   const sendButton = document.querySelector('#sendButton');
   const inputField = document.querySelector('#input');
   const uploadButton = document.querySelector('#uploadButton');
   const downloadButton = document.querySelector('#downloadButton');
-  const fileUploadButton = document.querySelector('#fileUploadButton'); // Added file upload button
+  const fileUploadButton = document.querySelector('#fileUploadButton');
 
   sendButton.addEventListener('click', sendMessage);
-  
-  // Send message with the Enter key
-  inputField.addEventListener('keydown', function(event) {
+  inputField.addEventListener('keydown', event => {
     if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent the default action (new line)
-      sendMessage(); // Call sendMessage when Enter is pressed
+      event.preventDefault();
+      sendMessage();
     }
   });
-  
+
   uploadButton.addEventListener('click', uploadDatabaseToFilestack);
   downloadButton.addEventListener('click', () => {
     const fileUrl = prompt('Enter the Filestack URL for the backup file');
-    if (fileUrl) {
-      loadDatabaseFromFilestack(fileUrl);
-    }
+    if (fileUrl) loadDatabaseFromFilestack(fileUrl);
   });
 
-  // Handle file upload button click
   fileUploadButton.addEventListener('click', () => {
-    const fileInput = document.querySelector('#fileInput');
-    fileInput.click(); // Trigger the file input click when the button is pressed
+    document.querySelector('#fileInput').click();
   });
+  document.querySelector('#fileInput').addEventListener('change', handleFileUpload);
 
-  document.querySelector('#fileInput').addEventListener('change', handleFileUpload); // Handle file input change
+  // Request notification permission on page load
+  requestNotificationPermission();
 };
 
-// Send message
-function sendMessage() {
-  const message = document.querySelector('#input').value.trim();
-  if (message) {
-    console.log('Sending message:', message);
-    drone.publish({ room: 'catchat1', message });
-    storeMessageInIndexedDB(message);
-    clearInputField(); // Clear the input field after sending
+function notify(message) {
+  if (Notification.permission === 'granted') {
+    new Notification(message);
+  } else {
+    const notification = document.createElement('div');
+    notification.classList.add('notification');
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
   }
 }
 
-// Clear the input field
+function sendMessage() {
+  const input = document.querySelector('#input');
+  const message = input.value.trim();
+  if (message) {
+    drone.publish({ room: 'catchat1', message });
+    storeMessageInIndexedDB(message);
+    clearInputField();
+  }
+}
+
 function clearInputField() {
   document.querySelector('#input').value = '';
 }
 
-// Add message to the DOM
 function addMessageToDOM(message, member) {
   const messageElement = document.createElement('div');
   messageElement.classList.add('message');
-  messageElement.innerHTML = `<strong>${member ? member.clientData.name : 'Server'}</strong>: ${message}`;
+  messageElement.innerHTML = `<strong>${member ? member.clientData.name : 'Server'}:</strong> ${message}`;
   document.querySelector('#messages').appendChild(messageElement);
+  document.querySelector('#messages').scrollTop = document.querySelector('#messages').scrollHeight;
 }
 
-// Store message in IndexedDB
 function storeMessageInIndexedDB(message) {
   const transaction = db.transaction(['messages'], 'readwrite');
   transaction.objectStore('messages').add({ message, timestamp: new Date().toISOString() });
 }
 
-// Upload database to Filestack
 function uploadDatabaseToFilestack() {
   const transaction = db.transaction(['messages'], 'readonly');
   const messagesStore = transaction.objectStore('messages');
@@ -152,89 +161,44 @@ function uploadDatabaseToFilestack() {
 
     const client = filestack.init(filestackApiKey);
     client.upload(dataToUpload)
-      .then(res => {
-        console.log('Database uploaded to Filestack:', res);
-      })
-      .catch(err => {
-        console.error('Failed to upload database:', err);
-      });
+      .then(res => console.log('Database uploaded:', res))
+      .catch(err => console.error('Upload error:', err));
   };
 }
 
-// Load database from Filestack
 function loadDatabaseFromFilestack(fileUrl) {
-  const client = filestack.init(filestackApiKey);
-  client.download(fileUrl)
-    .then(res => {
-      console.log('Downloaded database file:', res);
-      const file = res.filesUploaded[0];
-
-      // Fetch file content and handle it
-      fetch(file.url)
-        .then(response => response.json())
-        .then(fileContent => {
-          console.log('Database content loaded:', fileContent);
-          
-          // Store the content into IndexedDB
-          const transaction = db.transaction(['messages'], 'readwrite');
-          const messagesStore = transaction.objectStore('messages');
-          fileContent.forEach(msg => {
-            messagesStore.add(msg);
-          });
-          console.log('Database loaded into IndexedDB');
-          loadMessages();
-        })
-        .catch(err => console.error('Failed to fetch file content:', err));
+  fetch(fileUrl)
+    .then(response => response.json())
+    .then(fileContent => {
+      const transaction = db.transaction(['messages'], 'readwrite');
+      const messagesStore = transaction.objectStore('messages');
+      fileContent.forEach(msg => messagesStore.add(msg));
+      loadMessages();
     })
-    .catch(err => {
-      console.error('Failed to load database:', err);
-    });
+    .catch(err => console.error('Load error:', err));
 }
 
-// Load saved messages from IndexedDB
 function loadMessages() {
   const request = db.transaction(['messages'], 'readonly').objectStore('messages').getAll();
-  request.onsuccess = event => {
-    event.target.result.forEach(msg => addMessageToDOM(msg.message));
-  };
+  request.onsuccess = event => event.target.result.forEach(msg => addMessageToDOM(msg.message));
 }
 
-// Handle file upload (File Upload Button)
 function handleFileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
-
-  console.log('File selected for upload:', file.name); // Log the selected file
-
   const client = filestack.init(filestackApiKey);
-
-  // Start the file upload and log the progress
   client.upload(file)
-    .then(res => {
-      console.log('File uploaded successfully:', res);
-      sendMessageWithFile(res.url, file);
-    })
-    .catch(err => {
-      console.error('File upload error:', err);
-      alert('Failed to upload the file. Please try again.');
-    });
+    .then(res => sendMessageWithFile(res.url, file))
+    .catch(err => alert('File upload failed.'));
 }
 
-// Send message with file URL
 function sendMessageWithFile(url, file) {
   let message = '';
-  
   if (file.type.startsWith('image/')) {
-    // For images, embed the image
     message = `<img src="${url}" alt="${file.name}" style="max-width: 100px; max-height: 100px;" />`;
-  } else if (file.type.startsWith('video/')) {
-    // For videos, embed the video
-    message = `<video controls style="max-width: 100%; max-height: 400px;"><source src="${url}" type="${file.type}">Your browser does not support the video tag.</video>`;
   } else {
-    // For other file types, create a clickable link
-    message = `<a href="${url}" target="_blank">Click here to download ${file.name}</a>`;
+    message = `<a href="${url}" target="_blank">${file.name}</a>`;
   }
-  
   drone.publish({ room: 'catchat1', message });
   storeMessageInIndexedDB(message);
 }
