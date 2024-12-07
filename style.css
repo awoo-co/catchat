@@ -62,16 +62,16 @@ body {
   text-decoration: underline;  /* Adds an underline when the link is hovered */
 }
 
+/* Input Container Styles */
 #inputContainer {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 10px; /* Adjust gap between elements */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Create two columns */
+  gap: 10px; /* Adjust the gap between the buttons */
   margin-top: 10px; /* Space between messages and input */
 }
 
 #input {
-  flex: 1;
+  grid-column: span 2; /* Make the input field span across both columns */
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #444;
@@ -114,11 +114,6 @@ body {
   background-color: #0056b3;
 }
 
-/* File input button styling */
-#fileInput {
-  display: none; /* Hide the default file input */
-}
-
 #fileUploadButton {
   background-color: #28a745;
   color: #fff;
@@ -126,6 +121,11 @@ body {
 
 #fileUploadButton:hover {
   background-color: #218838;
+}
+
+/* File input button styling */
+#fileInput {
+  display: none; /* Hide the default file input */
 }
 
 /* Responsive Design */
@@ -137,7 +137,7 @@ body {
   }
 
   #inputContainer {
-    flex-direction: column; /* Stack buttons and text input vertically */
+    grid-template-columns: 1fr; /* Stack buttons and text input vertically */
     align-items: stretch;
   }
 
