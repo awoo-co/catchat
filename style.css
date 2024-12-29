@@ -15,6 +15,11 @@ body {
     height: 100vh;
 }
 
+p {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
 .container {
     text-align: center;
     background-color: #1a1a1a;
