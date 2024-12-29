@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catchat</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="shortcut icon" href="https://teslakitty-cdn.netlify.app/favicon.ico" type="image/x-icon">
+</head>
+<body class="dark-mode">
+  <div id="app">
+    <div id="chatContainer">
+      <div id="messages" class="messages">
+        <!-- Messages will be dynamically added here -->
+      </div>
+
+      <div id="inputContainer" class="message-form">
+        <button id="uploadButton" class="message-form__upload-button">Upload Database</button>
+        <button id="downloadButton" class="message-form__button">Download Database</button>
+        
+        <!-- This is the file input trigger button -->
+        <button id="fileUploadButton" class="message-form__upload-button">Upload File</button> <!-- Visible button -->
+
+        <!-- Hidden file input -->
+        <input type="file" id="fileInput" style="display: none;" />
+
+        <input type="text" id="input" class="message-form__input" placeholder="Type your message..." />
+        <button id="sendButton" class="message-form__button">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
+  <script src="https://static.filestackapi.com/filestack-js/3.35.4/filestack.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
