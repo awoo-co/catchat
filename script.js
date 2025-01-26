@@ -10,6 +10,10 @@ document.getElementById('server3').addEventListener('click', function() {
   window.location.href = 'catchat3/index.html';
 });
 
+document.getElementById('videochat').addEventListener('click', function() {
+  window.location.href = 'videochat/index.html';
+});
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js').then(registration => {
