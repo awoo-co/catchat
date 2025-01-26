@@ -1,0 +1,155 @@
+/* Dark mode styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #121212;
+    color: #ffffff;
+    text-align: center;
+}
+
+.page {
+    display: none; /* All pages hidden by default */
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.page.active {
+    display: block; /* Only the active page is visible */
+}
+
+/* Headings */
+h1 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #e0e0e0;
+}
+
+/* Inputs and Buttons */
+input, button {
+    margin: 10px 0;
+    padding: 12px;
+    width: 100%;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+input {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border: 1px solid #444444;
+}
+
+input::placeholder {
+    color: #aaaaaa;
+}
+
+button {
+    background-color: #6200ee;
+    color: #ffffff;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #3700b3;
+}
+
+/* Containers for Call Page */
+#video-container, #whiteboard-container, #chat-container {
+    margin-top: 20px;
+    border: 1px solid #333333;
+    padding: 15px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+}
+
+#chat-container input {
+    width: calc(100% - 80px);
+    display: inline-block;
+}
+
+#chat-container button {
+    width: 70px;
+    margin-left: 5px;
+}
+
+/* Chat Messages */
+#chatMessages {
+    margin-top: 15px;
+    max-height: 150px;
+    overflow-y: auto;
+    background-color: #121212;
+    border: 1px solid #333333;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+#chatMessages div {
+    margin-bottom: 10px;
+    padding: 8px;
+    background-color: #333333;
+    border-radius: 8px;
+}
+
+/* Screen Sharing Buttons */
+button#stopScreenShare {
+    background-color: #ff4444;
+}
+
+button#stopScreenShare:hover {
+    background-color: #cc0000;
+}
+
+/* Media Queries for Mobile Screens */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 20px;
+    }
+
+    input, button {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    #chat-container input {
+        width: calc(100% - 70px);
+    }
+
+    #chat-container button {
+        width: 60px;
+    }
+
+    #video-container, #whiteboard-container, #chat-container {
+        padding: 10px;
+        border-radius: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 18px;
+    }
+
+    input, button {
+        font-size: 13px;
+        padding: 8px;
+    }
+
+    #chat-container input {
+        width: calc(100% - 60px);
+    }
+
+    #chat-container button {
+        width: 50px;
+    }
+}
