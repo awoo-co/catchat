@@ -13,12 +13,21 @@ document.addEventListener("DOMContentLoaded", () => {
         pages[pageId].classList.add("active");
     }
 
-    // Page Navigation
+    // Page Navigation - Proceed to Permissions Page from the Meeting Setup
     document.getElementById("meeting-form").addEventListener("submit", (e) => {
         e.preventDefault();
+        
+        const hostName = document.getElementById("hostName").value;
+        const meetingName = document.getElementById("meetingName").value;
+        const meetingID = document.getElementById("meetingID").value;
+
+        // Optionally, store or send meeting details to the server
+
+        // Proceed to check permissions
         showPage("permissions");
     });
 
+    // Check Permissions logic
     document.getElementById("checkPermissions").addEventListener("click", () => {
         navigator.mediaDevices
             .getUserMedia({ video: true, audio: true })
