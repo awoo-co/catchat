@@ -14,7 +14,7 @@
             <input type="text" id="hostName" placeholder="Host Name" required>
             <input type="text" id="meetingName" placeholder="Meeting Name" required>
             <input type="text" id="meetingID" placeholder="Meeting ID" required>
-            <button type="submit">Create & Proceed</button>
+            <button type="submit">Proceed</button>
         </form>
     </div>
 
@@ -23,13 +23,6 @@
         <h1>Check Permissions</h1>
         <button id="checkPermissions">Check Permissions</button>
         <p id="status"></p>
-    </div>
-
-    <!-- Waiting Room Page -->
-    <div id="page-waiting-room" class="page">
-        <h1>Waiting Room</h1>
-        <p>Waiting for the host to join...</p>
-        <button id="leaveWaitingRoom">Leave Room</button>
     </div>
 
     <!-- Call Page -->
@@ -47,6 +40,7 @@
         <button id="endCall">End Call</button>
     </div>
 
+    <script src="https://cdn.agora.io/sdk/web/AgoraRTCSDK-4.0.0.js"></script>
     <script src="main.js"></script>
 </body>
 </html>
