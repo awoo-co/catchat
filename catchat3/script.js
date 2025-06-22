@@ -1,5 +1,10 @@
-const CLIENT_ID = 'bwwk6gIOrw0NH33r';
-const filestackApiKey = 'A8Kzo8mSSkWxnuNmfkHbLz';
+const CLIENT_ID = 'VcFdeFedyz6Pcbkw';
+const SUPABASE_URL = 'https://cwfhtorhywinknbilpre.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3Zmh0b3JoeXdpbmtuYmlscHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MDU2NjYsImV4cCI6MjA2NjE4MTY2Nn0.tD7bW79SQgnQaTZlqC6FbpkdUDfNa7k-0Se69Bn-EqA';
+
+// CORRECTED Supabase initialization:
+// Access createClient from the global 'supabase' object provided by the CDN
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Application state
 let myNickname = null;
@@ -12,7 +17,7 @@ let isSendingMessage = false;
 // Initialize IndexedDB
 function initializeDatabase() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('CatchatDB', 3); // Version bumped to 3 for additional schema changes
+    const request = indexedDB.open('CatchatDB', 3);
 
     request.onerror = (event) => {
       console.error('Database error:', event.target.error);
@@ -64,7 +69,6 @@ function initializeDrone() {
         return;
       }
 
-      // Double-check clientData assignment
       if (drone.clientData && drone.clientData.name) {
         myNickname = drone.clientData.name;
         console.log("Nickname confirmed:", myNickname);
@@ -89,7 +93,7 @@ function initializeDrone() {
 
 // Room handlers
 function setupRoomHandlers() {
-  const room = drone.subscribe('catchat1');
+  const room = drone.subscribe('catchat3');
 
   room.on('open', error => {
     if (error) {
@@ -115,22 +119,24 @@ function setupRoomHandlers() {
   });
 
   room.on('data', (messageData, member) => {
-    // Enhanced duplicate prevention
-    if (messageData.id <= lastMessageId) {
-      console.log('Ignoring duplicate message ID:', messageData.id);
-      return;
-    }
-
-    // Only process if this isn't our own message
-    if (messageData.sender !== myNickname && !isSendingMessage) {
-      addMessageToDOM(messageData);
-      playNotificationSound();
-      storeMessage(messageData);
+    if (messageData.id <= lastMessageId) return;
+    // Check if the message is from a different sender or if it's a local message being published
+    // The !isSendingMessage check is to prevent adding our own published messages twice when they come back via Scaledrone
+    // The isLocal property is to distinguish messages originating from the current client
+    // Only display messages that are not our own echoes or are genuinely new.
+    if (messageData.sender !== myNickname || messageData.isLocal) {
+        addMessageToDOM(messageData);
+        // Only play sound for incoming messages, not our own local ones being displayed
+        if (messageData.sender !== myNickname) {
+            playNotificationSound();
+        }
+        // Only store if it's a new message or our own sent message (which should be stored once)
+        storeMessage(messageData);
     }
   });
 }
 
-// Message handling with enhanced duplicate prevention
+// Message handling
 function sendMessage() {
   if (isSendingMessage) return;
 
@@ -147,70 +153,55 @@ function sendMessage() {
     text: messageText,
     sender: myNickname,
     timestamp: new Date().toISOString(),
-    isLocal: true // Mark as locally sent message
+    isLocal: true // Mark as local message for initial DOM display and to avoid re-processing when it echoes back
   };
 
-  // Optimistic UI update
-  addMessageToDOM(messageData);
-
-  // Publish to other clients
-  drone.publish({
-    room: 'catchat1',
-    message: messageData
-  });
-
-  // Store in database
+  addMessageToDOM(messageData); // Add immediately to DOM
+  drone.publish({ room: 'catchat3', message: messageData });
   storeMessage(messageData);
   input.value = '';
-  isSendingMessage = false; // Move this here to ensure it's reset
+  isSendingMessage = false;
 }
 
 function addMessageToDOM(message) {
-  // Enhanced duplicate checking
   const existingMessage = document.querySelector(`[data-message-id="${message.id}"]`);
-  if (existingMessage) {
-    console.log('Duplicate message detected, skipping:', message.id);
-    return;
-  }
+  if (existingMessage) return;
 
   const messagesDiv = document.getElementById('messages');
   const messageElement = document.createElement('div');
   messageElement.className = 'message';
+  // Add a class for messages sent by the current user
+  if (message.sender === myNickname) {
+    messageElement.classList.add('my-message');
+  }
+
   messageElement.dataset.messageId = message.id;
 
   const senderName = message.sender || "Unknown";
   messageElement.innerHTML = `<strong>${senderName}:</strong> ${message.text}`;
-
   messagesDiv.appendChild(messageElement);
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-// Database operations with enhanced error handling
+// Database operations
 function storeMessage(message) {
-  if (!db) {
-    console.error('Database not initialized');
-    return;
-  }
+  if (!db) return;
+
+  // Create a copy to remove 'isLocal' before storing, as it's a transient state
+  const messageToStore = { ...message };
+  delete messageToStore.isLocal;
 
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(['messages'], 'readwrite');
     const store = transaction.objectStore('messages');
-
     transaction.oncomplete = () => resolve();
-    transaction.onerror = (event) => {
-      console.error('Database error:', event.target.error);
-      reject(event.target.error);
-    };
-
-    store.put(message);
+    transaction.onerror = (event) => reject(event.target.error);
+    store.put(messageToStore);
   });
 }
 
 function loadMessages() {
-  if (!db) {
-    console.error('Database not initialized');
-    return;
-  }
+  if (!db) return;
 
   return new Promise((resolve) => {
     const transaction = db.transaction(['messages'], 'readonly');
@@ -219,10 +210,8 @@ function loadMessages() {
     const request = index.getAll();
 
     request.onsuccess = () => {
-      // Show only the most recent 100 messages
-      const messages = request.result.slice(-100);
+      const messages = request.result.slice(-100); // Load last 100 messages
       messages.forEach(msg => {
-        // Skip messages that might be duplicates
         if (msg.id > lastMessageId) {
           addMessageToDOM(msg);
           lastMessageId = Math.max(lastMessageId, msg.id);
@@ -238,8 +227,8 @@ function loadMessages() {
   });
 }
 
-// File handling with progress indication
-function handleFileUpload(event) {
+// File handling with Supabase
+async function handleFileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
 
@@ -248,42 +237,43 @@ function handleFileUpload(event) {
   uploadStatus.textContent = `Uploading ${file.name}...`;
   document.getElementById('messages').appendChild(uploadStatus);
 
-  const client = filestack.init(filestackApiKey);
-  client.upload(file, {
-    onProgress: (evt) => {
-      uploadStatus.textContent = `Uploading ${file.name}: ${Math.round(evt.totalPercent)}%`;
-    }
-  })
-  .then(res => {
+  try {
+    const fileName = `${Date.now()}-${file.name}`;
+    const { data, error } = await supabase.storage
+      .from('catchat-uploads')
+      .upload(fileName, file);
+
+    if (error) throw error;
+
+    // Supabase JS v2 now returns the public URL directly in the upload response data
+    // Or you can still get it like this if needed:
+    const { data: { publicUrl } } = supabase.storage
+      .from('catchat-uploads')
+      .getPublicUrl(fileName);
+
     uploadStatus.remove();
-    const messageId = Date.now();
+
     const messageData = {
-      id: messageId,
+      id: Date.now(),
       text: file.type.startsWith('image/')
-        ? `<img src="${res.url}" alt="${file.name}" style="max-width: 200px;">`
-        : `<a href="${res.url}" target="_blank">${file.name}</a>`,
+        ? `<img src="${publicUrl}" alt="${file.name}" style="max-width: 200px;">`
+        : `<a href="${publicUrl}" target="_blank">${file.name}</a>`,
       sender: myNickname,
       timestamp: new Date().toISOString(),
-      isLocal: true
+      isLocal: true // Mark as local
     };
 
-    lastMessageId = messageId;
     addMessageToDOM(messageData);
-    drone.publish({
-      room: 'catchat1',
-      message: messageData
-    });
+    drone.publish({ room: 'catchat3', message: messageData });
     storeMessage(messageData);
-  })
-  .catch(err => {
-    uploadStatus.textContent = `Failed to upload ${file.name}`;
-    console.error('Upload failed:', err);
+  } catch (error) {
+    uploadStatus.textContent = `Upload failed: ${error.message}`;
     setTimeout(() => uploadStatus.remove(), 3000);
-  });
+  }
 }
 
-// Backup functions with improved user feedback
-function uploadDatabaseToFilestack() {
+// Backup functions with Supabase
+async function uploadDatabaseToSupabase() {
   if (!db) {
     alert("Database not ready");
     return;
@@ -294,36 +284,39 @@ function uploadDatabaseToFilestack() {
   status.textContent = "Preparing backup...";
   document.getElementById('messages').appendChild(status);
 
-  const transaction = db.transaction(['messages'], 'readonly');
-  const store = transaction.objectStore('messages');
-  const request = store.getAll();
+  try {
+    const transaction = db.transaction(['messages'], 'readonly');
+    const store = transaction.objectStore('messages');
+    const request = store.getAll();
 
-  request.onsuccess = () => {
-    status.textContent = "Uploading backup...";
-    const data = new Blob([JSON.stringify(request.result)], { type: 'application/json' });
-    const client = filestack.init(filestackApiKey);
+    request.onsuccess = async () => {
+      status.textContent = "Uploading backup...";
+      const messages = request.result;
+      const blob = new Blob([JSON.stringify(messages)], { type: 'application/json' });
+      const fileName = `backup-${Date.now()}.json`;
 
-    client.upload(data)
-      .then(res => {
-        status.textContent = "Backup successful!";
-        console.log('Backup successful:', res);
-        setTimeout(() => status.remove(), 3000);
-      })
-      .catch(err => {
-        status.textContent = "Backup failed!";
-        console.error('Backup failed:', err);
-        setTimeout(() => status.remove(), 3000);
-      });
-  };
+      const { error } = await supabase.storage
+        .from('catchat-uploads')
+        .upload(fileName, blob);
 
-  request.onerror = () => {
-    status.textContent = "Failed to prepare backup";
+      if (error) throw error;
+
+      status.textContent = "Backup successful!";
+      setTimeout(() => status.remove(), 3000);
+    };
+
+    request.onerror = () => {
+      status.textContent = "Failed to prepare backup";
+      setTimeout(() => status.remove(), 3000);
+    };
+  } catch (error) {
+    status.textContent = `Backup failed: ${error.message}`;
     setTimeout(() => status.remove(), 3000);
-  };
+  }
 }
 
-function loadDatabaseFromFilestack() {
-  const url = prompt("Enter backup file URL:");
+async function loadDatabaseFromSupabase() {
+  const url = prompt("Enter Supabase file URL:");
   if (!url) return;
 
   const status = document.createElement('div');
@@ -331,44 +324,60 @@ function loadDatabaseFromFilestack() {
   status.textContent = "Restoring backup...";
   document.getElementById('messages').appendChild(status);
 
-  fetch(url)
-    .then(res => {
-      if (!res.ok) throw new Error('Failed to fetch backup');
-      return res.json();
-    })
-    .then(messages => {
-      const transaction = db.transaction(['messages'], 'readwrite');
-      const store = transaction.objectStore('messages');
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Failed to fetch backup');
+    const messages = await response.json();
 
-      store.clear().onsuccess = () => {
-        const requests = messages.map(msg => store.put(msg));
-        Promise.all(requests)
+    const transaction = db.transaction(['messages'], 'readwrite');
+    const store = transaction.objectStore('messages');
+
+    // Clear existing messages before adding new ones
+    await new Promise((resolve, reject) => {
+      const clearRequest = store.clear();
+      clearRequest.onsuccess = () => {
+        const putPromises = messages.map(msg => {
+          return new Promise((res, rej) => {
+            const putRequest = store.put(msg);
+            putRequest.onsuccess = res;
+            putRequest.onerror = rej;
+          });
+        });
+
+        Promise.all(putPromises)
           .then(() => {
             status.textContent = "Restore successful!";
+            // Clear current DOM messages and reload from DB to ensure consistency
+            document.getElementById('messages').innerHTML = '';
+            lastMessageId = 0; // Reset lastMessageId
             loadMessages();
             setTimeout(() => status.remove(), 3000);
+            resolve();
           })
           .catch(err => {
-            status.textContent = "Partial restore completed";
-            console.error('Some messages failed to restore:', err);
-            loadMessages();
+            console.error("Error during message put:", err);
+            status.textContent = "Partial restore completed or failed";
+            document.getElementById('messages').innerHTML = ''; // Clear anyway
+            lastMessageId = 0;
+            loadMessages(); // Load whatever was restored
             setTimeout(() => status.remove(), 3000);
+            reject(err); // Propagate error
           });
       };
-    })
-    .catch(err => {
-      status.textContent = "Restore failed!";
-      console.error('Restore failed:', err);
-      setTimeout(() => status.remove(), 3000);
+      clearRequest.onerror = (event) => reject(event.target.error);
     });
+  } catch (error) {
+    status.textContent = `Restore failed: ${error.message}`;
+    setTimeout(() => status.remove(), 3000);
+  }
 }
 
-// Utilities with enhanced reliability
+// Utilities
 function playNotificationSound() {
   try {
-    const audio = new Audio('/src/ding.mp3');
-    audio.volume = 0.3; // Lower volume for less intrusive notifications
-    audio.play().catch(e => console.log('Audio error:', e));
+    const audio = new Audio('/src/ding.mp3'); // Make sure this path is correct relative to your HTML
+    audio.volume = 0.3;
+    audio.play().catch(e => console.log('Audio play prevented or error:', e));
   } catch (e) {
     console.log('Failed to play sound:', e);
   }
@@ -377,8 +386,7 @@ function playNotificationSound() {
 function notify(message) {
   try {
     if (Notification.permission === 'granted') {
-      const notification = new Notification('New message', { body: message });
-      setTimeout(() => notification.close(), 5000);
+      new Notification('New message', { body: message });
     }
   } catch (e) {
     console.log('Notification error:', e);
@@ -395,7 +403,7 @@ async function requestNotificationPermission() {
   }
 }
 
-// Initialize application with proper error handling
+// Initialize application
 async function initializeApp() {
   try {
     document.getElementById('connectionStatus').textContent = "Initializing...";
@@ -411,7 +419,7 @@ async function initializeApp() {
   }
 }
 
-// Event listeners with proper cleanup
+// Event listeners
 function setupEventListeners() {
   const sendButton = document.getElementById('sendButton');
   const inputField = document.getElementById('input');
@@ -421,42 +429,17 @@ function setupEventListeners() {
   const downloadButton = document.getElementById('downloadButton');
   const reconnectButton = document.getElementById('reconnectButton');
 
-  const sendHandler = () => sendMessage();
-  const keyHandler = (e) => { if (e.key === 'Enter') sendMessage(); };
-  const fileClickHandler = () => fileInput.click();
-  const fileChangeHandler = (e) => handleFileUpload(e);
-  const uploadHandler = () => uploadDatabaseToFilestack();
-  const downloadHandler = () => loadDatabaseFromFilestack();
-  const reconnectHandler = () => initializeApp();
-
-  sendButton.addEventListener('click', sendHandler);
-  inputField.addEventListener('keypress', keyHandler);
-  fileUploadButton.addEventListener('click', fileClickHandler);
-  fileInput.addEventListener('change', fileChangeHandler);
-  uploadButton.addEventListener('click', uploadHandler);
-  downloadButton.addEventListener('click', downloadHandler);
-  reconnectButton.addEventListener('click', reconnectHandler);
-
-  // Return cleanup function
-  return () => {
-    sendButton.removeEventListener('click', sendHandler);
-    inputField.removeEventListener('keypress', keyHandler);
-    fileUploadButton.removeEventListener('click', fileClickHandler);
-    fileInput.removeEventListener('change', fileChangeHandler);
-    uploadButton.removeEventListener('click', uploadHandler);
-    downloadButton.removeEventListener('click', downloadHandler);
-    reconnectButton.removeEventListener('click', reconnectHandler);
-  };
+  sendButton.addEventListener('click', () => sendMessage());
+  inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+  fileUploadButton.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => handleFileUpload(e));
+  uploadButton.addEventListener('click', () => uploadDatabaseToSupabase());
+  downloadButton.addEventListener('click', () => loadDatabaseFromSupabase());
+  reconnectButton.addEventListener('click', () => initializeApp());
 }
 
-// Main initialization
+// Start the app
 document.addEventListener('DOMContentLoaded', () => {
-  const cleanup = setupEventListeners();
+  setupEventListeners();
   initializeApp();
-
-  // Handle potential cleanup (though in a SPA you might not need this)
-  window.addEventListener('beforeunload', () => {
-    cleanup();
-    if (drone) drone.close();
-  });
 });
