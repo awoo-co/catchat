@@ -1,4 +1,4 @@
-const CLIENT_ID = 'VcFdeFedyz6Pcbkw';
+const CLIENT_ID = '9jZ0VVVWob4YwjKe';
 const SUPABASE_URL = 'https://cwfhtorhywinknbilpre.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3Zmh0b3JoeXdpbmtuYmlscHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MDU2NjYsImV4cCI6MjA2NjE4MTY2Nn0.tD7bW79SQgnQaTZlqC6FbpkdUDfNa7k-0Se69Bn-EqA';
 
@@ -93,7 +93,7 @@ function initializeDrone() {
 
 // Room handlers
 function setupRoomHandlers() {
-  const room = drone.subscribe('catchat2');
+  const room = drone.subscribe('catchat1');
 
   room.on('open', error => {
     if (error) {
@@ -157,7 +157,7 @@ function sendMessage() {
   };
 
   addMessageToDOM(messageData); // Add immediately to DOM
-  drone.publish({ room: 'catchat2', message: messageData });
+  drone.publish({ room: 'catchat1', message: messageData });
   storeMessage(messageData);
   input.value = '';
   isSendingMessage = false;
@@ -264,7 +264,7 @@ async function handleFileUpload(event) {
     };
 
     addMessageToDOM(messageData);
-    drone.publish({ room: 'catchat2', message: messageData });
+    drone.publish({ room: 'catchat1', message: messageData });
     storeMessage(messageData);
   } catch (error) {
     uploadStatus.textContent = `Upload failed: ${error.message}`;
@@ -408,10 +408,21 @@ async function initializeApp() {
   try {
     document.getElementById('connectionStatus').textContent = "Initializing...";
     await initializeDatabase();
+    // Wait for the custom elements to be defined before setting up listeners
+    // This is the key fix for the race condition
+    await Promise.all([
+      window.customElements.whenDefined('md-filled-button'),
+      window.customElements.whenDefined('md-text-button'),
+      window.customElements.whenDefined('md-filled-text-field')
+    ]);
+
     await initializeDrone();
     setupRoomHandlers();
     await loadMessages();
     await requestNotificationPermission();
+
+    setupEventListeners();
+
   } catch (error) {
     console.error('Initialization failed:', error);
     document.getElementById('connectionStatus').textContent = "Initialization failed";
@@ -440,6 +451,5 @@ function setupEventListeners() {
 
 // Start the app
 document.addEventListener('DOMContentLoaded', () => {
-  setupEventListeners();
   initializeApp();
 });

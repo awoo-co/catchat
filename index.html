@@ -4,17 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>catchat</title>
+    
+    <script type="module" src="https://esm.run/@material/web/all.js"></script>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,fill,grad@20..48,100..700,0..1,-50..200" />
+    
     <link rel="stylesheet" href="style.css">
     <link rel="shortcut icon" href="https://awoo-co-cdn.netlify.app/favicon.ico" type="image/x-icon">
 </head>
 <body>
     <div class="container">
         <h1>hello! welcome to catchat</h1>
-        <P>Please select a Server</P>
-        <button id="server1" class="server-button">Server 1</button>
-        <button id="server2" class="server-button">Server 2</button>
-        <button id="server3" class="server-button">Server 3</button>
-        <button id="videochat" class="server-button">Video Chat</button>
+        <p>Please select a Server</p>
+        
+        <md-filled-button id="server1">Server 1</md-filled-button>
+        <md-filled-button id="server2">Server 2</md-filled-button>
+        <md-filled-button id="server3">Server 3</md-filled-button>
+        
+        <md-filled-button id="videochat">
+            <md-icon slot="icon">video_camera_front</md-icon>
+            Video Chat
+        </md-filled-button>
     </div>
     <script src="script.js"></script>
 </body>

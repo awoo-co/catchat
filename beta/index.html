@@ -4,26 +4,59 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catchat</title>
+  
+  <script type="module" src="https://esm.run/@material/web/all.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100" />
+  <style>
+    .material-symbols-outlined {
+      font-family: 'Material Symbols Outlined';
+      font-weight: 100;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+  
   <link rel="stylesheet" href="style.css">
   <link rel="shortcut icon" href="https://teslakitty-cdn.netlify.app/favicon.ico" type="image/x-icon">
 </head>
 <body class="dark-mode">
   <div id="app">
     <div id="connectionStatus">Connecting to chat...</div>
-    <button id="reconnectButton" class="reconnect-button" style="display: none;">Reconnect</button>
+    <md-filled-button id="reconnectButton" style="display: none;">
+      <span class="material-symbols-outlined" style="vertical-align: middle;">refresh</span>
+    </md-filled-button>
     
     <div id="chatContainer">
       <div id="messages" class="messages">
-        <!-- Messages will appear here -->
-      </div>
+        </div>
 
-      <div id="inputContainer" class="message-form">
-        <button id="uploadButton" class="message-form__upload-button">Backup Chat</button>
-        <button id="downloadButton" class="message-form__button">Restore Backup</button>
-        <button id="fileUploadButton" class="message-form__upload-button">Upload File</button>
-        <input type="file" id="fileInput" style="display: none;" />
-        <input type="text" id="input" class="message-form__input" placeholder="Type your message..." />
-        <button id="sendButton" class="message-form__button">Send</button>
+      <div id="inputContainer">
+        <md-text-button id="uploadButton">
+          <span class="material-symbols-outlined" style="vertical-align: middle;">backup</span>
+        </md-text-button>
+        <md-text-button id="downloadButton">
+          <span class="material-symbols-outlined" style="vertical-align: middle;">file_download</span>
+        </md-text-button>
+        <md-text-button id="fileUploadButton">
+            <span class="material-symbols-outlined" style="vertical-align: middle;">file_upload</span>
+        </md-text-button>
+  <input type="file" id="fileInput" style="display:none" />
+        
+        <md-filled-text-field id="input" placeholder="Type your message..." type="text">
+        </md-filled-text-field>
+        
+        <md-filled-button id="sendButton">
+          <span class="material-symbols-outlined" style="vertical-align: middle;">send</span>
+        </md-filled-button>
       </div>
     </div>
   </div>

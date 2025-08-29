@@ -408,10 +408,21 @@ async function initializeApp() {
   try {
     document.getElementById('connectionStatus').textContent = "Initializing...";
     await initializeDatabase();
+    // Wait for the custom elements to be defined before setting up listeners
+    // This is the key fix for the race condition
+    await Promise.all([
+      window.customElements.whenDefined('md-filled-button'),
+      window.customElements.whenDefined('md-text-button'),
+      window.customElements.whenDefined('md-filled-text-field')
+    ]);
+
     await initializeDrone();
     setupRoomHandlers();
     await loadMessages();
     await requestNotificationPermission();
+
+    setupEventListeners();
+
   } catch (error) {
     console.error('Initialization failed:', error);
     document.getElementById('connectionStatus').textContent = "Initialization failed";
@@ -440,6 +451,5 @@ function setupEventListeners() {
 
 // Start the app
 document.addEventListener('DOMContentLoaded', () => {
-  setupEventListeners();
   initializeApp();
 });
