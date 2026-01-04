@@ -1,0 +1,41 @@
+{
+  "lang": "en-US",
+  "name": "KaiWeather",
+  "id": "KaiWeather",
+  "short_name": "KaiWeather",
+  "categories": ["utilities"],
+  "description":
+    "Stay up-to-date with reliable weather forecasts and conditions wherever you are, at any time, with alerts and reports from the most trusted source in weather.",
+  "icons": [
+    {
+      "src": "/resources/icons/weather_56.png",
+      "type": "image/png",
+      "sizes": "56x56"
+    },
+    {
+      "src": "/resources/icons/weather_112.png",
+      "type": "image/png",
+      "sizes": "112x112"
+    }
+  ],
+  "start_url": "/index.html",
+  "theme_color": "#ffffff",
+  "orientation": "natural",
+  "b2g_features": {
+    "version": "1.0",
+    "core": true,
+    "subtitle": "Get the latest weather updates",
+    "permissions": {
+      "geolocation": {}
+    },
+    "origin": "catchat-meow",
+    "developer": {
+      "name": "awooco",
+      "url": "https://awoo-co.github.io/catchat/"
+    },
+    "chrome": {
+      "statusbar": "overlap"
+    },
+    "focus_color": "#6054EF"
+  }
+}
