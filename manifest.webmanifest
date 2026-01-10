@@ -1,7 +1,8 @@
 {
+  "lang": "en-US",
   "id": "catchat",
-  "name": "Catchat",
-  "short_name": "Catchat",
+  "name": "CatChat",
+  "short_name": "CatChat",
   "version": "3.1.0",
   "description": "Real-time chat application with file sharing",
   "categories": ["social"],
@@ -32,8 +33,12 @@
     "focus_color": "#ff6600",
     "cursor": true,
     "permissions": {
-      "storage": {},
-      "desktop-notification": {}
+      "storage": {
+        "description": "Required to save chat history and shared files locally."
+      },
+      "desktop-notification": {
+        "description": "Required to notify you of new messages when the app is in the background."
+      }
     },
     "developer": {
       "name": "awooco",
