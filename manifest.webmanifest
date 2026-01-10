@@ -1,42 +1,41 @@
 {
-  "lang": "en-US",
   "name": "CatChat",
-  "id": "catchat",
   "short_name": "CatChat",
+  "description": "Real-time chat application with file sharing",
   "categories": ["social"],
-  "description": "Real-time chat application with file sharing and offline support",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "natural",
+  "theme_color": "#ff6600",
+  "background_color": "#ffffff",
   "icons": [
     {
       "src": "/resources/icons/chat_56.png",
-      "type": "image/png",
-      "sizes": "56x56"
+      "sizes": "56x56",
+      "type": "image/png"
     },
     {
       "src": "/resources/icons/chat_112.png",
-      "type": "image/png",
-      "sizes": "112x112"
+      "sizes": "112x112",
+      "type": "image/png"
+    },
+    {
+      "src": "/resources/icons/chat_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
     }
   ],
-  "start_url": "/index.html",
-  "theme_color": "#ff6600",
-  "orientation": "natural",
   "b2g_features": {
-    "version": "1.2",
+    "version": "1.2.0",
     "core": false,
-    "subtitle": "Chat with friends in real-time",
-    "minimum_version": "3.0",
+    "focus_color": "#ff6600",
     "permissions": {
       "storage": {},
       "desktop-notification": {}
     },
-    "origin": "app://catchat",
     "developer": {
       "name": "awooco",
       "url": "https://awoo-co.github.io/catchat/"
-    },
-    "chrome": {
-      "statusbar": "overlap"
-    },
-    "focus_color": "#ff6600"
+    }
   }
 }
