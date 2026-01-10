@@ -26,10 +26,10 @@
             "desktop-notification": {},
             "audio-channel-notification": {}
         },
-        "version": "1.0.0"
-    },
-    "developer": {
-        "name": "awooco",
-        "url": "https://awoo-co.github.io/catchat/"
+        "version": "1.0.0",
+        "developer": {
+            "name": "awooco",
+            "url": "https://awoo-co.github.io/catchat/"
+        }
     }
 }
