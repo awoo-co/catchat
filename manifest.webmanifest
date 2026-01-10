@@ -5,7 +5,7 @@
     "description": "Real-time chat application with file sharing and offline support",
     "lang": "en-US",
     "theme_color": "#ff6600",
-    "orientation": "portrait-primary",
+    "orientation": "portrait",
     "start_url": "/index.html",
     "icons": [
         {
