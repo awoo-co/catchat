@@ -1,48 +1,41 @@
 {
   "lang": "en-US",
-  "id": "catchat",
   "name": "CatChat",
+  "id": "catchat",
   "short_name": "CatChat",
-  "version": "3.2.0",
-  "description": "Real-time chat application with file sharing",
   "categories": ["social"],
-  "start_url": "/index.html",
-  "display": "standalone",
-  "orientation": "natural",
-  "theme_color": "#ff6600",
-  "background_color": "#ffffff",
+  "description": "Real-time chat application with file sharing and offline support",
   "icons": [
     {
       "src": "/resources/icons/chat_56.png",
-      "sizes": "56x56",
-      "type": "image/png"
+      "type": "image/png",
+      "sizes": "56x56"
     },
     {
       "src": "/resources/icons/chat_112.png",
-      "sizes": "112x112",
-      "type": "image/png"
-    },
-    {
-      "src": "/resources/icons/chat_512.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "sizes": "112x112"
     }
   ],
+  "start_url": "/index.html",
+  "theme_color": "#ff6600",
+  "orientation": "natural",
   "b2g_features": {
-    "version": "3.2.0",
-    "focus_color": "#ff6600",
-    "cursor": true,
+    "version": "1.1",
+    "minimum_version": "3.0",
+    "subtitle": "Chat with friends in real-time",
     "permissions": {
-      "storage": {
-        "description": "Required to save chat history and shared files locally."
-      },
-      "desktop-notification": {
-        "description": "Required to notify you of new messages when the app is in the background."
-      }
+      "storage": {},
+      "desktop-notification": {}
     },
+    "origin": "app://catchat",
     "developer": {
       "name": "awooco",
       "url": "https://awoo-co.github.io/catchat/"
-    }
+    },
+    "chrome": {
+      "statusbar": "overlap"
+    },
+    "focus_color": "#ff6600"
   }
 }
