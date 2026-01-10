@@ -4,7 +4,7 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 // CORRECTED Supabase initialization:
 // Access createClient from the global 'supabase' object provided by the CDN
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Application state
 let myNickname = null;
@@ -239,7 +239,7 @@ async function handleFileUpload(event) {
 
   try {
     const fileName = `${Date.now()}-${file.name}`;
-    const { data, error } = await supabase.storage
+    const { data, error } = await supabaseClient.storage
       .from('catchat-uploads')
       .upload(fileName, file);
 
@@ -247,7 +247,7 @@ async function handleFileUpload(event) {
 
     // Supabase JS v2 now returns the public URL directly in the upload response data
     // Or you can still get it like this if needed:
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = supabaseClient.storage
       .from('catchat-uploads')
       .getPublicUrl(fileName);
 
@@ -295,7 +295,7 @@ async function uploadDatabaseToSupabase() {
       const blob = new Blob([JSON.stringify(messages)], { type: 'application/json' });
       const fileName = `backup-${Date.now()}.json`;
 
-      const { error } = await supabase.storage
+      const { error } = await supabaseClient.storage
         .from('catchat-uploads')
         .upload(fileName, blob);
 
