@@ -3,11 +3,7 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/style.css',
-  '/script.js',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  'https://cdn.scaledrone.com/scaledrone.min.js',
-  'https://static.filestackapi.com/filestack-js/3.35.4/filestack.min.js'
+  '/script.js'
 ];
 
 // Install service worker and cache resources
@@ -15,7 +11,13 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        return cache.addAll(urlsToCache);
+        return cache.addAll(urlsToCache).catch(err => {
+          console.error('Cache installation error:', err);
+          return Promise.resolve();
+        });
+      })
+      .then(() => {
+        self.skipWaiting();
       })
   );
 });
@@ -33,14 +35,25 @@ self.addEventListener('activate', event => {
         })
       );
     })
+    .then(() => {
+      return self.clients.claim();
+    })
   );
 });
 
 // Fetch resources from cache or network
 self.addEventListener('fetch', event => {
+  // Skip cross-origin requests
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
-      return cachedResponse || fetch(event.request);
+      return cachedResponse || fetch(event.request).catch(() => {
+        // Return offline page if offline
+        return caches.match('/index.html');
+      });
     })
   );
 });
