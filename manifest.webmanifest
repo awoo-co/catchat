@@ -21,7 +21,7 @@
   "theme_color": "#ff6600",
   "orientation": "natural",
   "b2g_features": {
-    "version": "1.0",
+    "version": "1.1",
     "core": false,
     "subtitle": "Chat with friends in real-time",
     "permissions": {

@@ -8,22 +8,6 @@
   <script type="module" src="https://esm.run/@material/web/all.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100" />
-  <style>
-    .material-symbols-outlined {
-      font-family: 'Material Symbols Outlined';
-      font-weight: 100;
-      font-style: normal;
-      font-size: 24px;
-      line-height: 1;
-      letter-spacing: normal;
-      text-transform: none;
-      display: inline-block;
-      white-space: nowrap;
-      direction: ltr;
-      -webkit-font-feature-settings: 'liga';
-      -webkit-font-smoothing: antialiased;
-    }
-  </style>
   
   <link rel="stylesheet" href="style.css">
    <link rel="shortcut icon" href="https://awoo-co.github.io/cdn/favicon.ico" type="image/x-icon">
@@ -31,9 +15,7 @@
 <body class="dark-mode">
   <div id="app">
     <div id="connectionStatus">Connecting to chat...</div>
-    <md-filled-button id="reconnectButton" style="display: none;">
-      <span class="material-symbols-outlined" style="vertical-align: middle;">refresh</span>
-    </md-filled-button>
+    <button id="reconnectButton" class="kaios-button" style="display: none;">🔄</button>
     
     <div id="chatContainer">
       <div id="messages" class="messages">
@@ -48,15 +30,12 @@
         </md-text-button>
         <md-text-button id="fileUploadButton">
             <span class="material-symbols-outlined" style="vertical-align: middle;">file_upload</span>
-        </md-text-button>
+        </button>
   <input type="file" id="fileInput" style="display:none" />
         
-        <md-filled-text-field id="input" placeholder="Type your message..." type="text">
-        </md-filled-text-field>
+        <input id="input" class="kaios-input" placeholder="Type your message..." type="text" />
         
-        <md-filled-button id="sendButton">
-          <span class="material-symbols-outlined" style="vertical-align: middle;">send</span>
-        </md-filled-button>
+        <button id="sendButton" class="kaios-icon-button" title="Send">📨</button>
       </div>
     </div>
   </div>

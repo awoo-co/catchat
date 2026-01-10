@@ -14,18 +14,16 @@
     <link rel="shortcut icon" href="https://awoo-co.github.io/cdn/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="app-container">
         <h1>hello! welcome to catchat</h1>
         <p>Please select a Server</p>
         
-        <md-filled-button id="server1">Server 1</md-filled-button>
-        <md-filled-button id="server2">Server 2</md-filled-button>
-        <md-filled-button id="server3">Server 3</md-filled-button>
-        
-        <md-filled-button id="videochat">
-            <md-icon slot="icon">video_camera_front</md-icon>
-            Video Chat
-        </md-filled-button>
+        <div class="button-group">
+            <button class="kaios-button" id="server1" tabindex="0">Server 1</button>
+            <button class="kaios-button" id="server2" tabindex="1">Server 2</button>
+            <button class="kaios-button" id="server3" tabindex="2">Server 3</button>
+            <button class="kaios-button" id="videochat" tabindex="3">📹 Video Chat</button>
+        </div>
     </div>
     <script src="script.js"></script>
 </body>
