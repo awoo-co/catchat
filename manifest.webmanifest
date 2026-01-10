@@ -1,35 +1,41 @@
 {
-    "id": "catchat",
-    "name": "CatChat",
-    "short_name": "CatChat",
-    "description": "Real-time chat application with file sharing and offline support",
-    "lang": "en-US",
-    "theme_color": "#ff6600",
-    "orientation": "portrait",
-    "start_url": "/index.html",
-    "icons": [
-        {
-            "src": "/resources/icons/chat_56.png",
-            "type": "image/png",
-            "sizes": "56x56"
-        },
-        {
-            "src": "/resources/icons/chat_112.png",
-            "type": "image/png",
-            "sizes": "112x112"
-        }
-    ],
-    "b2g_features": {
-        "type": "web",
-        "permissions": {
-            "storage": {},
-            "desktop-notification": {},
-            "audio-channel-notification": {}
-        },
-        "version": "1.0.0",
-        "developer": {
-            "name": "awooco",
-            "url": "https://awoo-co.github.io/catchat/"
-        }
+  "lang": "en-US",
+  "name": "CatChat",
+  "id": "catchat",
+  "short_name": "CatChat",
+  "categories": ["social"],
+  "description": "Real-time chat application with file sharing and offline support",
+  "icons": [
+    {
+      "src": "/resources/icons/chat_56.png",
+      "type": "image/png",
+      "sizes": "56x56"
+    },
+    {
+      "src": "/resources/icons/chat_112.png",
+      "type": "image/png",
+      "sizes": "112x112"
     }
+  ],
+  "start_url": "/index.html",
+  "theme_color": "#ff6600",
+  "orientation": "natural",
+  "b2g_features": {
+    "version": "1.0",
+    "core": false,
+    "subtitle": "Chat with friends in real-time",
+    "permissions": {
+      "storage": {},
+      "desktop-notification": {}
+    },
+    "origin": "app://catchat",
+    "developer": {
+      "name": "awooco",
+      "url": "https://awoo-co.github.io/catchat/"
+    },
+    "chrome": {
+      "statusbar": "overlap"
+    },
+    "focus_color": "#ff6600"
+  }
 }
