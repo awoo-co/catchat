@@ -1,7 +1,7 @@
 {
   "id": "https://awoo-co.github.io/catchat/",
-  "name": "CatChat",
-  "short_name": "CatChat",
+  "name": "Catchat",
+  "short_name": "Catchat",
   "version": "3.0.0",
   "description": "Real-time chat application with file sharing",
   "categories": ["social"],
