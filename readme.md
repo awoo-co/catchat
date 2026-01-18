@@ -1,6 +1,5 @@
 # catchat
 # features
-* material you
 * not using firebase
 * dark mode
 
