@@ -8,4 +8,7 @@
 * notifications
 
 ## video of a tour of catchat
-[catchat-tour.webm](https://github.com/user-attachments/assets/ea395c8f-b5d8-40b9-8e76-f05815569923)
+
+
+https://github.com/user-attachments/assets/e0078612-a692-440f-a16d-e0e68927b9e0
+
