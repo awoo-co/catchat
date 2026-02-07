@@ -430,6 +430,127 @@ async function initializeApp() {
   }
 }
 
+// KaiOS navigation
+const kaiosNavState = {
+  focusIndex: 0,
+  focusables: []
+};
+
+function getKaiOSFocusableElements() {
+  const elements = Array.from(
+    document.querySelectorAll('button, input, [tabindex], md-text-button')
+  );
+
+  return elements.filter((element) => {
+    if (element.disabled) {
+      return false;
+    }
+
+    const tagName = element.tagName.toLowerCase();
+    if (tagName === 'input' && element.type === 'file') {
+      return false;
+    }
+
+    if (element.tabIndex < 0) {
+      return false;
+    }
+
+    return element.getClientRects().length > 0;
+  });
+}
+
+function refreshKaiOSFocusables() {
+  kaiosNavState.focusables = getKaiOSFocusableElements();
+
+  kaiosNavState.focusables.forEach((element) => {
+    if (element.dataset.kaiosBound) {
+      return;
+    }
+
+    element.addEventListener('focus', () => {
+      const index = kaiosNavState.focusables.indexOf(element);
+      if (index !== -1) {
+        kaiosNavState.focusIndex = index;
+      }
+    });
+
+    element.dataset.kaiosBound = 'true';
+  });
+}
+
+function focusKaiOSElement(index) {
+  refreshKaiOSFocusables();
+
+  if (!kaiosNavState.focusables.length) {
+    return;
+  }
+
+  const clampedIndex = (index + kaiosNavState.focusables.length) % kaiosNavState.focusables.length;
+  kaiosNavState.focusIndex = clampedIndex;
+  kaiosNavState.focusables[clampedIndex].focus();
+}
+
+function clickKaiOSFocusedElement() {
+  refreshKaiOSFocusables();
+  const target = kaiosNavState.focusables[kaiosNavState.focusIndex];
+  if (target) {
+    target.click();
+  }
+}
+
+function handleKaiOSNavigation(event) {
+  const key = event.key;
+  const keyCode = event.keyCode;
+
+  const isUp = key === 'ArrowUp' || key === 'Up' || keyCode === 38;
+  const isDown = key === 'ArrowDown' || key === 'Down' || keyCode === 40;
+  const isSelect = key === 'Enter' || keyCode === 13;
+  const isSoftLeft = key === 'SoftLeft' || key === 'F1' || keyCode === 112;
+  const isSoftRight = key === 'SoftRight' || key === 'F2' || keyCode === 113;
+
+  const activeElement = document.activeElement;
+  const activeTag = activeElement ? activeElement.tagName.toLowerCase() : '';
+  const isTypingField = activeTag === 'input' || activeTag === 'textarea';
+
+  if (isTypingField && (isUp || isDown || isSelect)) {
+    return;
+  }
+
+  if (isUp) {
+    event.preventDefault();
+    focusKaiOSElement(kaiosNavState.focusIndex - 1);
+    return;
+  }
+
+  if (isDown) {
+    event.preventDefault();
+    focusKaiOSElement(kaiosNavState.focusIndex + 1);
+    return;
+  }
+
+  if (isSelect || isSoftLeft) {
+    event.preventDefault();
+    clickKaiOSFocusedElement();
+    return;
+  }
+
+  if (isSoftRight) {
+    event.preventDefault();
+    window.history.back();
+  }
+}
+
+function setupKaiOSNavigation() {
+  refreshKaiOSFocusables();
+  window.addEventListener('keydown', handleKaiOSNavigation);
+  window.addEventListener('load', () => {
+    refreshKaiOSFocusables();
+    if (!document.activeElement || document.activeElement === document.body) {
+      focusKaiOSElement(kaiosNavState.focusIndex);
+    }
+  });
+}
+
 // Event listeners
 function setupEventListeners() {
   const sendButton = document.getElementById('sendButton');
@@ -452,4 +573,5 @@ function setupEventListeners() {
 // Start the app
 document.addEventListener('DOMContentLoaded', () => {
   initializeApp();
+  setupKaiOSNavigation();
 });

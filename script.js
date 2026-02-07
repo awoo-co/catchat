@@ -14,6 +14,72 @@ document.getElementById('videochat').addEventListener('click', function() {
   window.location.href = 'videochat/index.html';
 });
 
+const kaiosButtons = Array.from(document.querySelectorAll('.kaios-button'));
+let currentFocusIndex = 0;
+
+function focusButtonAt(index) {
+  if (!kaiosButtons.length) {
+    return;
+  }
+
+  const clampedIndex = (index + kaiosButtons.length) % kaiosButtons.length;
+  currentFocusIndex = clampedIndex;
+  kaiosButtons[clampedIndex].focus();
+}
+
+function clickFocusedButton() {
+  if (!kaiosButtons.length) {
+    return;
+  }
+
+  kaiosButtons[currentFocusIndex].click();
+}
+
+function handleKaiOSNavigation(event) {
+  const key = event.key;
+  const keyCode = event.keyCode;
+
+  const isUp = key === 'ArrowUp' || key === 'Up' || keyCode === 38;
+  const isDown = key === 'ArrowDown' || key === 'Down' || keyCode === 40;
+  const isSelect = key === 'Enter' || keyCode === 13;
+  const isSoftLeft = key === 'SoftLeft' || key === 'F1' || keyCode === 112;
+  const isSoftRight = key === 'SoftRight' || key === 'F2' || keyCode === 113;
+
+  if (isUp) {
+    event.preventDefault();
+    focusButtonAt(currentFocusIndex - 1);
+    return;
+  }
+
+  if (isDown) {
+    event.preventDefault();
+    focusButtonAt(currentFocusIndex + 1);
+    return;
+  }
+
+  if (isSelect || isSoftLeft) {
+    event.preventDefault();
+    clickFocusedButton();
+    return;
+  }
+
+  if (isSoftRight) {
+    event.preventDefault();
+    window.history.back();
+  }
+}
+
+kaiosButtons.forEach((button, index) => {
+  button.addEventListener('focus', () => {
+    currentFocusIndex = index;
+  });
+});
+
+window.addEventListener('keydown', handleKaiOSNavigation);
+window.addEventListener('load', () => {
+  focusButtonAt(currentFocusIndex);
+});
+
 async function resetBrowserData() {
   localStorage.clear();
   sessionStorage.clear();
