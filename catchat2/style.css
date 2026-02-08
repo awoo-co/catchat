@@ -68,6 +68,11 @@ body {
   max-height: calc(100% - 60px);
 }
 
+#messages:focus {
+  outline: 3px solid #ff6600;
+  outline-offset: 2px;
+}
+
 .message {
   background-color: #444;
   color: #e0e0e0;

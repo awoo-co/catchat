@@ -433,15 +433,34 @@ async function initializeApp() {
 // KaiOS navigation
 const kaiosNavState = {
   focusIndex: 0,
-  focusables: []
+  focusables: [],
+  zoom: 1
 };
 
 function getKaiOSFocusableElements() {
-  const elements = Array.from(
-    document.querySelectorAll('button, input, [tabindex], md-text-button')
-  );
+  const messages = document.getElementById('messages');
+  const inputField = document.getElementById('input');
+  const uploadButton = document.getElementById('uploadButton');
+  const downloadButton = document.getElementById('downloadButton');
+  const fileUploadButton = document.getElementById('fileUploadButton');
+  const sendButton = document.getElementById('sendButton');
+  const reconnectButton = document.getElementById('reconnectButton');
 
-  return elements.filter((element) => {
+  const ordered = [
+    messages,
+    inputField,
+    uploadButton,
+    downloadButton,
+    fileUploadButton,
+    sendButton,
+    reconnectButton
+  ];
+
+  return ordered.filter((element) => {
+    if (!element) {
+      return false;
+    }
+
     if (element.disabled) {
       return false;
     }
@@ -498,6 +517,34 @@ function clickKaiOSFocusedElement() {
   }
 }
 
+function applyKaiOSZoom() {
+  document.body.style.zoom = String(kaiosNavState.zoom.toFixed(2));
+}
+
+function adjustKaiOSZoom(delta) {
+  const nextZoom = Math.min(1.4, Math.max(0.8, kaiosNavState.zoom + delta));
+  if (nextZoom === kaiosNavState.zoom) {
+    return;
+  }
+
+  kaiosNavState.zoom = nextZoom;
+  applyKaiOSZoom();
+}
+
+function scrollMessages(direction) {
+  const messages = document.getElementById('messages');
+  if (!messages) {
+    return false;
+  }
+
+  const maxScrollTop = messages.scrollHeight - messages.clientHeight;
+  const current = messages.scrollTop;
+  const delta = 48 * direction;
+  const next = Math.max(0, Math.min(maxScrollTop, current + delta));
+  messages.scrollTop = next;
+  return next !== current;
+}
+
 function handleKaiOSNavigation(event) {
   const key = event.key;
   const keyCode = event.keyCode;
@@ -507,41 +554,69 @@ function handleKaiOSNavigation(event) {
   const isSelect = key === 'Enter' || keyCode === 13;
   const isSoftLeft = key === 'SoftLeft' || key === 'F1' || keyCode === 112;
   const isSoftRight = key === 'SoftRight' || key === 'F2' || keyCode === 113;
+  const isZoomOut = key === '1' || keyCode === 49;
+  const isZoomIn = key === '2' || keyCode === 50;
+
+  if (isZoomOut) {
+    event.preventDefault();
+    adjustKaiOSZoom(-0.1);
+    return;
+  }
+
+  if (isZoomIn) {
+    event.preventDefault();
+    adjustKaiOSZoom(0.1);
+    return;
+  }
 
   const activeElement = document.activeElement;
-  const activeTag = activeElement ? activeElement.tagName.toLowerCase() : '';
-  const isTypingField = activeTag === 'input' || activeTag === 'textarea';
+  const activeId = activeElement ? activeElement.id : '';
+  const isInputFocused = activeId === 'input';
+  const isMessagesFocused = activeId === 'messages';
 
-  if (isTypingField && (isUp || isDown || isSelect)) {
-    return;
-  }
-
-  if (isUp) {
+  if (isSoftLeft) {
     event.preventDefault();
-    focusKaiOSElement(kaiosNavState.focusIndex - 1);
-    return;
-  }
-
-  if (isDown) {
-    event.preventDefault();
-    focusKaiOSElement(kaiosNavState.focusIndex + 1);
-    return;
-  }
-
-  if (isSelect || isSoftLeft) {
-    event.preventDefault();
-    clickKaiOSFocusedElement();
+    window.history.back();
     return;
   }
 
   if (isSoftRight) {
     event.preventDefault();
-    window.history.back();
+    const inputField = document.getElementById('input');
+    if (inputField && document.activeElement === inputField) {
+      inputField.blur();
+    }
+    return;
+  }
+
+  if (isSelect && isInputFocused) {
+    return;
+  }
+
+  if (isUp || isDown) {
+    const direction = isUp ? -1 : 1;
+    if (isMessagesFocused) {
+      const didScroll = scrollMessages(direction);
+      if (didScroll) {
+        event.preventDefault();
+        return;
+      }
+    }
+
+    event.preventDefault();
+    focusKaiOSElement(kaiosNavState.focusIndex + direction);
+    return;
+  }
+
+  if (isSelect) {
+    event.preventDefault();
+    clickKaiOSFocusedElement();
   }
 }
 
 function setupKaiOSNavigation() {
   refreshKaiOSFocusables();
+  applyKaiOSZoom();
   window.addEventListener('keydown', handleKaiOSNavigation);
   window.addEventListener('load', () => {
     refreshKaiOSFocusables();
