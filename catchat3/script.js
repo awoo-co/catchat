@@ -556,6 +556,7 @@ function handleKaiOSNavigation(event) {
   const isSoftRight = key === 'SoftRight' || key === 'F2' || keyCode === 113;
   const isZoomOut = key === '1' || keyCode === 49;
   const isZoomIn = key === '2' || keyCode === 50;
+  const isLeaveKeyboard = key === '3' || keyCode === 51;
 
   if (isZoomOut) {
     event.preventDefault();
@@ -566,6 +567,16 @@ function handleKaiOSNavigation(event) {
   if (isZoomIn) {
     event.preventDefault();
     adjustKaiOSZoom(0.1);
+    return;
+  }
+
+  if (isLeaveKeyboard) {
+    event.preventDefault();
+    const inputField = document.getElementById('input');
+    if (inputField && document.activeElement === inputField) {
+      inputField.blur();
+      document.getElementById('messages')?.focus();
+    }
     return;
   }
 
