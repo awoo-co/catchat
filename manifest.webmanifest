@@ -1,0 +1,47 @@
+{
+  "id": "catchat",
+  "name": "CatChat",
+  "short_name": "CatChat",
+  "description": "Chat application for KaiOS",
+  "categories": ["social", "utilities"],
+  "lang": "en-US",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "theme_color": "#1b1b1b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/icons/kaios_56.png",
+      "type": "image/png",
+      "sizes": "56x56"
+    },
+    {
+      "src": "/assets/icons/kaios_112.png",
+      "type": "image/png",
+      "sizes": "112x112"
+    },
+    {
+      "src": "/assets/icons/kaios_128.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    }
+  ],
+  "b2g_features": {
+    "version": "1.9.0",
+    "subtitle": "Stay connected with CatChat",
+    "permissions": {
+      "systemXHR": {},
+      "browser": {}
+    },
+    "origin": "catchat-awooco",
+    "developer": {
+      "name": "awooco",
+      "url": "https://awoo-co.github.io/awoo-co/"
+    },
+    "chrome": {
+      "statusbar": "overlap"
+    },
+    "focus_color": "#9b27af"
+  },
+  "default_locale": "en-US"
+}

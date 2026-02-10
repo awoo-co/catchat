@@ -1,0 +1,40 @@
+:root {
+  --kk-accent: #1b1b1b;
+  --kk-accent-contrast: #ffffff;
+  --kk-bg: #1b1b1b;
+  --kk-text: #ffffff;
+  --kk-softkey-bg: #1b1b1b;
+  --kk-softkey-border: #1b1b1b;
+}
+
+.kk-app {
+  background-color: var(--kk-bg);
+  color: var(--kk-text);
+}
+
+.kk-header {
+  background-color: var(--kk-accent);
+  color: var(--kk-accent-contrast);
+}
+
+.kk-field input[nav-selected="true"] {
+  border-bottom-color: var(--kk-accent);
+}
+
+.kk-field input[nav-selected="true"] ~ label {
+  color: var(--kk-accent);
+}
+
+.kk-list span[nav-selected="true"] {
+  background-image: linear-gradient(255deg, var(--kk-accent), var(--kk-accent));
+  color: var(--kk-accent-contrast);
+}
+
+.kk-softkey {
+  background: var(--kk-softkey-bg);
+  border-top: 2px var(--kk-softkey-border) solid;
+}
+
+.native-softkeys #softkey {
+  display: none;
+}
