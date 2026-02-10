@@ -385,7 +385,10 @@ function playNotificationSound() {
 
 function notify(message) {
   try {
-    if (Notification.permission === 'granted') {
+    const isBackground = typeof document !== 'undefined'
+      ? document.visibilityState !== 'visible'
+      : true;
+    if (isBackground && Notification.permission === 'granted') {
       new Notification('New message', { body: message });
     }
   } catch (e) {
