@@ -5,7 +5,7 @@
 
 
 # does not work is
-* notifications
+* notifications (working on it)
 
 ## video of a tour of catchat
 
