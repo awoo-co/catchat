@@ -13,14 +13,16 @@ let puterLoadPromise = null;
 let puterSocketWarningWorkaroundInstalled = false;
 let puterDisabledReason = '';
 const PRODUCTION_HOST = 'awoo-co.github.io';
+const PRODUCTION_PATH_PREFIX = '/catchat/';
 
-function isProductionHost() {
+function isProductionSite() {
   if (typeof window === 'undefined' || !window.location) {
     return false;
   }
 
   const host = window.location.hostname || '';
-  return host === PRODUCTION_HOST || host.endsWith(`.${PRODUCTION_HOST}`);
+  const pathname = window.location.pathname || '';
+  return host === PRODUCTION_HOST && pathname.startsWith(PRODUCTION_PATH_PREFIX);
 }
 
 function setModeBanner(mode, reason) {
@@ -200,7 +202,7 @@ function loadPuterSDK() {
     return Promise.resolve(window.puter);
   }
 
-  if (!isProductionHost()) {
+  if (!isProductionSite()) {
     return Promise.reject(new Error('Puter is disabled outside the production domain'));
   }
 
@@ -261,8 +263,8 @@ async function ensurePuterAuth() {
     throw new Error(puterDisabledReason);
   }
 
-  if (!isProductionHost()) {
-    disablePuterForSession('Puter is only enabled on the production domain; using local fallback.');
+  if (!isProductionSite()) {
+    disablePuterForSession('Puter is only enabled on /catchat/ production pages; using local fallback.');
     throw new Error(puterDisabledReason);
   }
 
@@ -978,7 +980,7 @@ function setupEventListeners() {
 
 // Start the app
 document.addEventListener('DOMContentLoaded', () => {
-  if (isProductionHost()) {
+  if (isProductionSite()) {
     setModeBanner('cloud');
   } else {
     setModeBanner('local', 'non-production environment');
