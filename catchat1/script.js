@@ -12,6 +12,16 @@ let puterAuthReady = false;
 let puterLoadPromise = null;
 let puterSocketWarningWorkaroundInstalled = false;
 let puterDisabledReason = '';
+const PRODUCTION_HOST = 'awoo-co.github.io';
+
+function isProductionHost() {
+  if (typeof window === 'undefined' || !window.location) {
+    return false;
+  }
+
+  const host = window.location.hostname || '';
+  return host === PRODUCTION_HOST || host.endsWith(`.${PRODUCTION_HOST}`);
+}
 
 function setModeBanner(mode, reason) {
   const banner = document.getElementById('modeBanner');
@@ -190,6 +200,10 @@ function loadPuterSDK() {
     return Promise.resolve(window.puter);
   }
 
+  if (!isProductionHost()) {
+    return Promise.reject(new Error('Puter is disabled outside the production domain'));
+  }
+
   installPuterSocketWarningWorkaround();
 
   if (puterLoadPromise) {
@@ -247,8 +261,8 @@ async function ensurePuterAuth() {
     throw new Error(puterDisabledReason);
   }
 
-  if (isGithubDevHost()) {
-    disablePuterForSession('Puter popup auth is restricted on github.dev; using local fallback.');
+  if (!isProductionHost()) {
+    disablePuterForSession('Puter is only enabled on the production domain; using local fallback.');
     throw new Error(puterDisabledReason);
   }
 
@@ -964,9 +978,10 @@ function setupEventListeners() {
 
 // Start the app
 document.addEventListener('DOMContentLoaded', () => {
-  setModeBanner('cloud');
-  if (isGithubDevHost()) {
-    setModeBanner('local', 'github.dev auth restrictions');
+  if (isProductionHost()) {
+    setModeBanner('cloud');
+  } else {
+    setModeBanner('local', 'non-production environment');
   }
   setLoadingProgress(12, 'Preparing app...');
   initializeApp();
