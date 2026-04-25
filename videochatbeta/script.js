@@ -20,6 +20,32 @@ let joined = false;
 let micMuted = false;
 let camMuted = false;
 
+function isLikelyAgoraAppId(value) {
+	return /^[a-fA-F0-9]{32}$/.test(value);
+}
+
+function isLikelyRtcToken(value) {
+	if (typeof value !== 'string') return false;
+	const trimmed = value.trim();
+	if (!trimmed) return false;
+
+	// Web RTC tokens are usually long encoded strings (often starting with "006").
+	return trimmed.length > 80 || trimmed.startsWith('006');
+}
+
+function getEffectiveToken() {
+	if (AGORA_CONFIG.token === null || AGORA_CONFIG.token === undefined) {
+		return null;
+	}
+
+	if (typeof AGORA_CONFIG.token !== 'string') {
+		return AGORA_CONFIG.token;
+	}
+
+	const trimmed = AGORA_CONFIG.token.trim();
+	return trimmed === '' ? null : trimmed;
+}
+
 function setLoadingProgress(percent, label) {
 	const boundedPercent = Math.max(0, Math.min(100, Math.round(percent)));
 	const loadingBar = document.getElementById('loadingBar');
@@ -74,6 +100,23 @@ function validateConfig() {
 		setStatus('Set AGORA_CONFIG.appId in script.js', true);
 		return false;
 	}
+
+	if (!isLikelyAgoraAppId(AGORA_CONFIG.appId)) {
+		setStatus('Invalid App ID format: expected 32 hex chars', true);
+		return false;
+	}
+
+	if (!AGORA_CONFIG.channel || !AGORA_CONFIG.channel.trim()) {
+		setStatus('Set a non-empty channel in AGORA_CONFIG.channel', true);
+		return false;
+	}
+
+	const effectiveToken = getEffectiveToken();
+	if (effectiveToken !== null && !isLikelyRtcToken(effectiveToken)) {
+		setStatus('Token format looks invalid. Use a real RTC token or null.', true);
+		return false;
+	}
+
 	return true;
 }
 
@@ -130,6 +173,7 @@ async function joinRoom() {
 	if (!ensureAgoraAvailable() || !validateConfig()) return;
 
 	try {
+		const effectiveToken = getEffectiveToken();
 		setStatus('Joining room...');
 		client = window.AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
 
@@ -137,7 +181,7 @@ async function joinRoom() {
 		client.on('user-unpublished', handleUserUnpublished);
 		client.on('user-left', handleUserLeft);
 
-		await client.join(AGORA_CONFIG.appId, AGORA_CONFIG.channel, AGORA_CONFIG.token, null);
+		await client.join(AGORA_CONFIG.appId, AGORA_CONFIG.channel, effectiveToken, null);
 		const [audioTrack, videoTrack] = await window.AgoraRTC.createMicrophoneAndCameraTracks();
 		localTracks.audioTrack = audioTrack;
 		localTracks.videoTrack = videoTrack;
@@ -150,7 +194,19 @@ async function joinRoom() {
 		setStatus(`Connected to ${AGORA_CONFIG.channel}`);
 	} catch (error) {
 		console.error('Failed to join room:', error);
-		setStatus(`Join failed: ${error.message || 'Unknown error'}`, true);
+
+		const rawMessage = String(error?.message || 'Unknown error');
+		if (/invalid vendor key|can not find appid/i.test(rawMessage)) {
+			setStatus('Join failed: App ID not found. Check Agora Console App ID.', true);
+			return;
+		}
+
+		if (/invalid token|token/i.test(rawMessage)) {
+			setStatus('Join failed: invalid token. Use RTC token or null.', true);
+			return;
+		}
+
+		setStatus(`Join failed: ${rawMessage}`, true);
 	}
 }
 
@@ -220,41 +276,3 @@ joinBtn.addEventListener('click', joinRoom);
 leaveBtn.addEventListener('click', leaveRoom);
 toggleMicBtn.addEventListener('click', toggleMic);
 toggleCamBtn.addEventListener('click', toggleCamera);
-function setLoadingProgress(percent, label) {
-	const boundedPercent = Math.max(0, Math.min(100, Math.round(percent)));
-	const loadingBar = document.getElementById('loadingBar');
-	const loadingPercent = document.getElementById('loadingPercent');
-	const loadingLabel = document.getElementById('loadingLabel');
-
-	if (loadingBar) {
-		loadingBar.style.width = `${boundedPercent}%`;
-	}
-
-	if (loadingPercent) {
-		loadingPercent.textContent = `${boundedPercent}%`;
-	}
-
-	if (loadingLabel && label) {
-		loadingLabel.textContent = label;
-	}
-}
-
-function hideLoadingOverlay() {
-	const overlay = document.getElementById('loadingOverlay');
-	if (!overlay) return;
-
-	overlay.classList.add('hidden');
-	setTimeout(() => {
-		overlay.style.display = 'none';
-	}, 260);
-}
-
-window.addEventListener('load', () => {
-	setLoadingProgress(18, 'Loading page...');
-	setTimeout(() => setLoadingProgress(48, 'Preparing beta view...'), 100);
-	setTimeout(() => setLoadingProgress(78, 'Almost ready...'), 200);
-	setTimeout(() => {
-		setLoadingProgress(100, 'Ready');
-		hideLoadingOverlay();
-	}, 320);
-});
