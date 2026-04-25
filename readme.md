@@ -3,7 +3,7 @@
 * not using firebase
 * dark mode
 
-catchat is in beta and currently broken puter intergraion for storage
+
 # does not work is
 * notifications (working on it)
 

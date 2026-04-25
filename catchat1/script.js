@@ -1,4 +1,10 @@
 const CLIENT_ID = 'VcFdeFedyz6Pcbkw';
+const SUPABASE_URL = 'https://cwfhtorhywinknbilpre.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3Zmh0b3JoeXdpbmtuYmlscHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MDU2NjYsImV4cCI6MjA2NjE4MTY2Nn0.tD7bW79SQgnQaTZlqC6FbpkdUDfNa7k-0Se69Bn-EqA';
+
+// CORRECTED Supabase initialization:
+// Access createClient from the global 'supabase' object provided by the CDN
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Application state
 let myNickname = null;
@@ -7,56 +13,7 @@ let members = [];
 let db = null;
 let lastMessageId = 0;
 let isSendingMessage = false;
-<<<<<<< HEAD
 let roomJoinResolved = false;
-let puterAuthReady = false;
-let puterLoadPromise = null;
-let puterSocketWarningWorkaroundInstalled = false;
-let puterDisabledReason = '';
-const PRODUCTION_HOST = 'awoo-co.github.io';
-const PRODUCTION_PATH_PREFIX = '/catchat/';
-
-function isProductionSite() {
-  if (typeof window === 'undefined' || !window.location) {
-    return false;
-  }
-
-  const host = window.location.hostname || '';
-  const pathname = window.location.pathname || '';
-  return host === PRODUCTION_HOST && pathname.startsWith(PRODUCTION_PATH_PREFIX);
-}
-
-function setModeBanner(mode, reason) {
-  const banner = document.getElementById('modeBanner');
-  if (!banner) {
-    return;
-  }
-
-  if (mode === 'local') {
-    banner.classList.remove('mode-cloud');
-    banner.classList.add('mode-local');
-    banner.textContent = reason
-      ? `Storage mode: Local fallback (${reason})`
-      : 'Storage mode: Local fallback';
-    return;
-  }
-
-  banner.classList.remove('mode-local');
-  banner.classList.add('mode-cloud');
-  banner.textContent = 'Storage mode: Cloud (Puter)';
-}
-
-function setPathBanner() {
-  const pathBanner = document.getElementById('pathBanner');
-  if (!pathBanner || typeof window === 'undefined' || !window.location) {
-    return;
-  }
-
-  const host = window.location.host || '';
-  const path = window.location.pathname || '/';
-  const activeSite = isProductionSite() ? 'production /catchat/' : 'local fallback';
-  pathBanner.textContent = `Path: ${host}${path} | ${activeSite}`;
-}
 
 function setLoadingProgress(percent, label) {
   const boundedPercent = Math.max(0, Math.min(100, Math.round(percent)));
@@ -85,237 +42,6 @@ function hideLoadingOverlay() {
   setTimeout(() => {
     overlay.style.display = 'none';
   }, 260);
-}
-=======
->>>>>>> parent of 1c3a713e (added  a progress bar)
-
-function sanitizeFileName(name) {
-  return (name || 'file')
-    .replace(/[^a-zA-Z0-9._-]/g, '_')
-    .replace(/_+/g, '_');
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function isGithubDevHost() {
-  if (typeof window === 'undefined' || !window.location) {
-    return false;
-  }
-
-  const host = window.location.hostname || '';
-  return host.endsWith('.github.dev') || host.endsWith('.app.github.dev');
-}
-
-function disablePuterForSession(reason) {
-  if (!puterDisabledReason) {
-    puterDisabledReason = reason || 'Puter unavailable in this environment';
-    console.warn(`Puter disabled for this session: ${puterDisabledReason}`);
-    setModeBanner('local', puterDisabledReason);
-  }
-}
-
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error('Failed to read file'));
-    reader.readAsDataURL(file);
-  });
-}
-
-function downloadBlobLocally(blob, filename) {
-  const objectUrl = URL.createObjectURL(blob);
-  const anchor = document.createElement('a');
-  anchor.href = objectUrl;
-  anchor.download = filename;
-  anchor.style.display = 'none';
-  document.body.appendChild(anchor);
-  anchor.click();
-  document.body.removeChild(anchor);
-  URL.revokeObjectURL(objectUrl);
-}
-
-function pickLocalFile(accept = '.json') {
-  return new Promise((resolve, reject) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = accept;
-    input.style.display = 'none';
-
-    input.onchange = () => {
-      const file = input.files && input.files[0] ? input.files[0] : null;
-      document.body.removeChild(input);
-      if (!file) {
-        reject(new Error('No file selected'));
-        return;
-      }
-      resolve(file);
-    };
-
-    document.body.appendChild(input);
-    input.click();
-  });
-}
-
-function resolvePuterReadUrl(item, fallbackPath) {
-  if (!item) {
-    return fallbackPath;
-  }
-
-  return item.readURL || item.read_url || item.readUrl || item.path || fallbackPath;
-}
-
-function installPuterSocketWarningWorkaround() {
-  if (puterSocketWarningWorkaroundInstalled || typeof window === 'undefined' || !window.WebSocket) {
-    return;
-  }
-
-  const NativeWebSocket = window.WebSocket;
-
-  // Avoid browser console noise caused by closing a CONNECTING puter socket.io websocket.
-  window.WebSocket = function patchedWebSocket(url, protocols) {
-    const ws = protocols === undefined
-      ? new NativeWebSocket(url)
-      : new NativeWebSocket(url, protocols);
-
-    try {
-      const isPuterSocket = typeof url === 'string' && url.includes('wss://api.puter.com/socket.io/');
-      if (isPuterSocket) {
-        const nativeClose = ws.close.bind(ws);
-        ws.close = function patchedClose(code, reason) {
-          if (ws.readyState === NativeWebSocket.CONNECTING) {
-            return;
-          }
-          return nativeClose(code, reason);
-        };
-      }
-    } catch (error) {
-      console.warn('Puter websocket workaround setup failed:', error);
-    }
-
-    return ws;
-  };
-
-  window.WebSocket.prototype = NativeWebSocket.prototype;
-  window.WebSocket.CONNECTING = NativeWebSocket.CONNECTING;
-  window.WebSocket.OPEN = NativeWebSocket.OPEN;
-  window.WebSocket.CLOSING = NativeWebSocket.CLOSING;
-  window.WebSocket.CLOSED = NativeWebSocket.CLOSED;
-
-  puterSocketWarningWorkaroundInstalled = true;
-}
-
-function loadPuterSDK() {
-  if (window.puter) {
-    return Promise.resolve(window.puter);
-  }
-
-  if (!isProductionSite()) {
-    return Promise.reject(new Error('Puter is disabled outside the production domain'));
-  }
-
-  installPuterSocketWarningWorkaround();
-
-  if (puterLoadPromise) {
-    return puterLoadPromise;
-  }
-
-  puterLoadPromise = new Promise((resolve, reject) => {
-    const existingScript = document.querySelector('script[data-sdk="puter"]');
-    if (existingScript) {
-      existingScript.addEventListener('load', () => resolve(window.puter), { once: true });
-      existingScript.addEventListener('error', () => reject(new Error('Failed to load Puter SDK')), { once: true });
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://js.puter.com/v2/';
-    script.async = true;
-    script.dataset.sdk = 'puter';
-    script.onload = () => resolve(window.puter);
-    script.onerror = () => reject(new Error('Failed to load Puter SDK'));
-    document.head.appendChild(script);
-  });
-
-  return puterLoadPromise;
-}
-
-async function showPuterSavePicker(content, suggestedName) {
-  if (!window.puter || !window.puter.ui || typeof window.puter.ui.showSaveFilePicker !== 'function') {
-    throw new Error('Puter save picker is not available');
-  }
-
-  const savedItem = await window.puter.ui.showSaveFilePicker(content, suggestedName);
-  if (!savedItem || typeof savedItem !== 'object') {
-    throw new Error('Save cancelled');
-  }
-
-  return savedItem;
-}
-
-async function showPuterOpenPicker() {
-  if (!window.puter || !window.puter.ui || typeof window.puter.ui.showOpenFilePicker !== 'function') {
-    throw new Error('Puter open picker is not available');
-  }
-
-  const picked = await window.puter.ui.showOpenFilePicker({ multiple: false });
-  if (!picked) {
-    throw new Error('Open cancelled');
-  }
-
-  return Array.isArray(picked) ? picked[0] : picked;
-}
-
-async function ensurePuterAuth() {
-  if (puterDisabledReason) {
-    throw new Error(puterDisabledReason);
-  }
-
-  if (!isProductionSite()) {
-    disablePuterForSession('Puter is only enabled on /catchat/ production pages; using local fallback.');
-    throw new Error(puterDisabledReason);
-  }
-
-  if (puterAuthReady) {
-    return;
-  }
-
-  await loadPuterSDK();
-
-  if (!window.puter) {
-    throw new Error('Puter.js is not available');
-  }
-
-  if (window.puter.ui && typeof window.puter.ui.authenticateWithPuter === 'function') {
-    await window.puter.ui.authenticateWithPuter();
-  }
-
-  puterAuthReady = true;
-  setModeBanner('cloud');
-}
-
-async function shouldUsePuter() {
-  try {
-    await ensurePuterAuth();
-    return true;
-  } catch (error) {
-    const message = error && error.message ? error.message : String(error);
-    if (/cancel/i.test(message)) {
-      throw error;
-    }
-
-    if (!puterDisabledReason) {
-      disablePuterForSession(message);
-    }
-    return false;
-  }
 }
 
 // Initialize IndexedDB
@@ -360,6 +86,7 @@ function initializeDrone() {
     const nickname = generateNickname();
     myNickname = nickname;
     document.getElementById('connectionStatus').textContent = "Connecting...";
+    setLoadingProgress(55, 'Connecting to chat...');
 
     drone = new ScaleDrone(CLIENT_ID, {
       data: { name: nickname, color: '#ff6600' }
@@ -370,6 +97,7 @@ function initializeDrone() {
         console.error('Connection failed:', error);
         document.getElementById('connectionStatus').textContent = "Connection failed";
         document.getElementById('reconnectButton').style.display = 'block';
+        setLoadingProgress(100, 'Connection failed');
         return;
       }
 
@@ -380,35 +108,48 @@ function initializeDrone() {
 
       document.getElementById('connectionStatus').textContent = `Connected as ${myNickname}`;
       document.getElementById('reconnectButton').style.display = 'none';
+      setLoadingProgress(72, 'Connected. Joining room...');
       resolve();
     });
 
     drone.on('close', () => {
       document.getElementById('connectionStatus').textContent = "Disconnected";
       document.getElementById('reconnectButton').style.display = 'block';
+      setLoadingProgress(100, 'Disconnected');
     });
 
     drone.on('error', (error) => {
       console.error('Connection error:', error);
       document.getElementById('connectionStatus').textContent = "Connection error";
+      setLoadingProgress(100, 'Connection error');
     });
   });
 }
 
 // Room handlers
 function setupRoomHandlers() {
+  roomJoinResolved = false;
   const room = drone.subscribe('catchat1');
 
   room.on('open', error => {
     if (error) {
       console.error('Failed to join room:', error);
+      setLoadingProgress(100, 'Failed to join chat room');
     } else {
       console.log('Successfully joined room');
+      if (!roomJoinResolved) {
+        roomJoinResolved = true;
+        setLoadingProgress(82, 'Room joined. Syncing messages...');
+      }
     }
   });
 
   room.on('members', m => {
     members = m;
+    if (!roomJoinResolved) {
+      roomJoinResolved = true;
+      setLoadingProgress(82, 'Room joined. Syncing messages...');
+    }
     notify(`${members.length} users in chat`);
   });
 
@@ -531,7 +272,7 @@ function loadMessages() {
   });
 }
 
-// File handling with Puter.js
+// File handling with Supabase
 async function handleFileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -542,31 +283,26 @@ async function handleFileUpload(event) {
   document.getElementById('messages').appendChild(uploadStatus);
 
   try {
-    let fileUrl = '';
-    const usePuter = await shouldUsePuter();
-    if (usePuter) {
-      const fileName = `${Date.now()}-${sanitizeFileName(file.name)}`;
-      const uploadedItem = await showPuterSavePicker(file, fileName);
-      fileUrl = resolvePuterReadUrl(uploadedItem, '');
-    } else {
-      if (file.size > 450 * 1024) {
-        throw new Error('Local fallback supports files up to 450KB.');
-      }
-      fileUrl = await fileToDataUrl(file);
-    }
+    const fileName = `${Date.now()}-${file.name}`;
+    const { data, error } = await supabaseClient.storage
+      .from('catchat-uploads')
+      .upload(fileName, file);
 
-    if (!fileUrl) {
-      throw new Error('Could not get a usable file URL');
-    }
+    if (error) throw error;
+
+    // Supabase JS v2 now returns the public URL directly in the upload response data
+    // Or you can still get it like this if needed:
+    const { data: { publicUrl } } = supabaseClient.storage
+      .from('catchat-uploads')
+      .getPublicUrl(fileName);
 
     uploadStatus.remove();
-    const safeName = escapeHtml(file.name);
 
     const messageData = {
       id: Date.now(),
       text: file.type.startsWith('image/')
-        ? `<img src="${fileUrl}" alt="${safeName}" style="max-width: 200px;">`
-        : `<a href="${fileUrl}" target="_blank" download="${safeName}">${safeName}</a>`,
+        ? `<img src="${publicUrl}" alt="${file.name}" style="max-width: 200px;">`
+        : `<a href="${publicUrl}" target="_blank">${file.name}</a>`,
       sender: myNickname,
       timestamp: new Date().toISOString(),
       isLocal: true // Mark as local
@@ -578,13 +314,11 @@ async function handleFileUpload(event) {
   } catch (error) {
     uploadStatus.textContent = `Upload failed: ${error.message}`;
     setTimeout(() => uploadStatus.remove(), 3000);
-  } finally {
-    event.target.value = '';
   }
 }
 
-// Backup functions with Puter.js
-async function uploadDatabaseToPuter() {
+// Backup functions with Supabase
+async function uploadDatabaseToSupabase() {
   if (!db) {
     alert("Database not ready");
     return;
@@ -601,24 +335,18 @@ async function uploadDatabaseToPuter() {
     const request = store.getAll();
 
     request.onsuccess = async () => {
+      status.textContent = "Uploading backup...";
       const messages = request.result;
-      const backupBlob = new Blob([JSON.stringify(messages, null, 2)], { type: 'application/json' });
-      const backupName = `catchat-backup-${Date.now()}.json`;
-      const usePuter = await shouldUsePuter();
-      if (usePuter) {
-        status.textContent = "Uploading backup...";
-        const backupItem = await showPuterSavePicker(backupBlob, backupName);
-        const savedPath = backupItem.path || backupName;
-        const savedUrl = resolvePuterReadUrl(backupItem, '');
-        localStorage.setItem('catchat1-last-backup-path', savedPath);
-        if (savedUrl) {
-          localStorage.setItem('catchat1-last-backup-url', savedUrl);
-        }
-        status.textContent = `Backup successful: ${savedPath}`;
-      } else {
-        downloadBlobLocally(backupBlob, backupName);
-        status.textContent = `Backup downloaded locally: ${backupName}`;
-      }
+      const blob = new Blob([JSON.stringify(messages)], { type: 'application/json' });
+      const fileName = `backup-${Date.now()}.json`;
+
+      const { error } = await supabaseClient.storage
+        .from('catchat-uploads')
+        .upload(fileName, blob);
+
+      if (error) throw error;
+
+      status.textContent = "Backup successful!";
       setTimeout(() => status.remove(), 3000);
     };
 
@@ -632,38 +360,19 @@ async function uploadDatabaseToPuter() {
   }
 }
 
-async function loadDatabaseFromPuter() {
+async function loadDatabaseFromSupabase() {
+  const url = prompt("Enter Supabase file URL:");
+  if (!url) return;
+
   const status = document.createElement('div');
   status.className = 'restore-status';
   status.textContent = "Restoring backup...";
   document.getElementById('messages').appendChild(status);
 
   try {
-    let backupText = '';
-    const usePuter = await shouldUsePuter();
-    if (usePuter) {
-      const pickedBackup = await showPuterOpenPicker();
-      const backupUrl = resolvePuterReadUrl(
-        pickedBackup,
-        localStorage.getItem('catchat1-last-backup-url') || ''
-      );
-
-      if (!backupUrl) {
-        throw new Error('Could not open selected backup file');
-      }
-
-      const backupResponse = await fetch(backupUrl);
-      if (!backupResponse.ok) {
-        throw new Error('Failed to download backup file');
-      }
-
-      backupText = await backupResponse.text();
-    } else {
-      const localFile = await pickLocalFile('.json,application/json');
-      backupText = await localFile.text();
-    }
-
-    const messages = JSON.parse(backupText);
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Failed to fetch backup');
+    const messages = await response.json();
 
     const transaction = db.transaction(['messages'], 'readwrite');
     const store = transaction.objectStore('messages');
@@ -745,8 +454,10 @@ async function requestNotificationPermission() {
 // Initialize application
 async function initializeApp() {
   try {
+    setLoadingProgress(5, 'Loading page...');
     document.getElementById('connectionStatus').textContent = "Initializing...";
     await initializeDatabase();
+    setLoadingProgress(25, 'Database ready...');
     // Wait for the custom elements to be defined before setting up listeners
     // This is the key fix for the race condition
     await Promise.all([
@@ -754,18 +465,24 @@ async function initializeApp() {
       window.customElements.whenDefined('md-text-button'),
       window.customElements.whenDefined('md-filled-text-field')
     ]);
+    setLoadingProgress(45, 'UI components ready...');
 
     await initializeDrone();
     setupRoomHandlers();
     await loadMessages();
+    setLoadingProgress(92, 'Messages loaded...');
     await requestNotificationPermission();
+    setLoadingProgress(98, 'Finalizing...');
 
     setupEventListeners();
+    setLoadingProgress(100, 'Ready');
+    hideLoadingOverlay();
 
   } catch (error) {
     console.error('Initialization failed:', error);
     document.getElementById('connectionStatus').textContent = "Initialization failed";
     document.getElementById('reconnectButton').style.display = 'block';
+    setLoadingProgress(100, 'Initialization failed');
   }
 }
 
@@ -965,23 +682,18 @@ function setupEventListeners() {
   inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
   fileUploadButton.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (e) => handleFileUpload(e));
-  uploadButton.addEventListener('click', () => uploadDatabaseToPuter());
-  downloadButton.addEventListener('click', () => loadDatabaseFromPuter());
+  uploadButton.addEventListener('click', () => uploadDatabaseToSupabase());
+  downloadButton.addEventListener('click', () => loadDatabaseFromSupabase());
   reconnectButton.addEventListener('click', () => initializeApp());
 }
 
 // Start the app
 document.addEventListener('DOMContentLoaded', () => {
-<<<<<<< HEAD
-  setPathBanner();
-  if (isProductionSite()) {
-    setModeBanner('cloud');
-  } else {
-    setModeBanner('local', 'non-production environment');
-  }
   setLoadingProgress(12, 'Preparing app...');
-=======
->>>>>>> parent of 1c3a713e (added  a progress bar)
   initializeApp();
   setupKaiOSNavigation();
+});
+
+window.addEventListener('load', () => {
+  setLoadingProgress(18, 'Page assets loaded...');
 });

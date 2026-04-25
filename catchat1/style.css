@@ -39,6 +39,59 @@ body {
   height: 100vh;
 }
 
+#loadingOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(24, 24, 24, 0.92);
+  z-index: 9999;
+  transition: opacity 0.25s ease;
+}
+
+#loadingOverlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-content {
+  width: min(420px, 86vw);
+  padding: 20px;
+  border-radius: 10px;
+  background: #222;
+  border: 1px solid #3a3a3a;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+#loadingLabel {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #f0f0f0;
+}
+
+#loadingTrack {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: #383838;
+  overflow: hidden;
+}
+
+#loadingBar {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #5ab05a, #86d289);
+  transition: width 0.25s ease;
+}
+
+#loadingPercent {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #cfcfcf;
+  text-align: right;
+}
+
 #app {
   display: flex;
   flex-direction: column;
@@ -48,33 +101,6 @@ body {
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-}
-
-.mode-banner {
-  margin-top: 8px;
-  margin-bottom: 10px;
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  border: 1px solid transparent;
-}
-
-.mode-cloud {
-  background: rgba(90, 176, 90, 0.16);
-  border-color: rgba(90, 176, 90, 0.35);
-  color: #c9f3cb;
-}
-
-.mode-local {
-  background: rgba(224, 153, 58, 0.15);
-  border-color: rgba(224, 153, 58, 0.35);
-  color: #ffdcae;
-}
-
-.path-banner {
-  margin-bottom: 10px;
-  font-size: 12px;
-  color: #9f9f9f;
 }
 
 #chatContainer {

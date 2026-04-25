@@ -11,10 +11,17 @@
    <link rel="shortcut icon" href="https://awoo-co.github.io/cdn/favicon.ico" type="image/x-icon">
 </head>
 <body class="dark-mode">
+  <div id="loadingOverlay" aria-live="polite" aria-label="Loading progress">
+    <div class="loading-content">
+      <div id="loadingLabel">Loading chat...</div>
+      <div id="loadingTrack">
+        <div id="loadingBar"></div>
+      </div>
+      <div id="loadingPercent">0%</div>
+    </div>
+  </div>
   <div id="app">
     <div id="connectionStatus">Connecting to chat...</div>
-    <div id="modeBanner" class="mode-banner mode-cloud" aria-live="polite">Storage mode: Cloud (Puter)</div>
-    <div id="pathBanner" class="path-banner" aria-live="polite"></div>
     <button id="reconnectButton" class="kaios-button" style="display: none;">🔄</button>
     
     <div id="chatContainer">
@@ -22,8 +29,8 @@
         </div>
 
       <div id="inputContainer">
-        <button id="uploadButton" class="kaios-icon-button" title="Create Puter Backup" aria-label="Create Puter Backup">💾</button>
-        <button id="downloadButton" class="kaios-icon-button" title="Restore Puter Backup" aria-label="Restore Puter Backup">📥</button>
+        <button id="uploadButton" class="kaios-icon-button" title="Upload Database">💾</button>
+        <button id="downloadButton" class="kaios-icon-button" title="Download Database">📥</button>
         <button id="fileUploadButton" class="kaios-icon-button" title="Upload File">📤</button>
   <input type="file" id="fileInput" style="display:none" />
         
@@ -35,11 +42,12 @@
   </div>
 
   <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <div id="softkey">
     <span id="left"></span>
     <span id="center"></span>
     <span id="right"></span>
   </div>
-  <script src="script.js?v=20260425-1"></script>
+  <script src="script.js"></script>
 </body>
 </html>
