@@ -45,6 +45,18 @@ function setModeBanner(mode, reason) {
   banner.textContent = 'Storage mode: Cloud (Puter)';
 }
 
+function setPathBanner() {
+  const pathBanner = document.getElementById('pathBanner');
+  if (!pathBanner || typeof window === 'undefined' || !window.location) {
+    return;
+  }
+
+  const host = window.location.host || '';
+  const path = window.location.pathname || '/';
+  const activeSite = isProductionSite() ? 'production /catchat/' : 'local fallback';
+  pathBanner.textContent = `Path: ${host}${path} | ${activeSite}`;
+}
+
 function setLoadingProgress(percent, label) {
   const boundedPercent = Math.max(0, Math.min(100, Math.round(percent)));
   const loadingBar = document.getElementById('loadingBar');
@@ -980,6 +992,7 @@ function setupEventListeners() {
 
 // Start the app
 document.addEventListener('DOMContentLoaded', () => {
+  setPathBanner();
   if (isProductionSite()) {
     setModeBanner('cloud');
   } else {

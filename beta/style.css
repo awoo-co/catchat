@@ -124,6 +124,12 @@ body {
   color: #ffdcae;
 }
 
+.path-banner {
+  margin-bottom: 10px;
+  font-size: 12px;
+  color: #9f9f9f;
+}
+
 #chatContainer {
   display: flex;
   flex-direction: column;
