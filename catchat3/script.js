@@ -1,10 +1,4 @@
 const CLIENT_ID = 'bwwk6gIOrw0NH33r';
-const SUPABASE_URL = 'https://cwfhtorhywinknbilpre.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN3Zmh0b3JoeXdpbmtuYmlscHJlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA2MDU2NjYsImV4cCI6MjA2NjE4MTY2Nn0.tD7bW79SQgnQaTZlqC6FbpkdUDfNa7k-0Se69Bn-EqA';
-
-// CORRECTED Supabase initialization:
-// Access createClient from the global 'supabase' object provided by the CDN
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Application state
 let myNickname = null;
@@ -14,6 +8,30 @@ let db = null;
 let lastMessageId = 0;
 let isSendingMessage = false;
 let roomJoinResolved = false;
+let puterAuthReady = false;
+let puterLoadPromise = null;
+let puterSocketWarningWorkaroundInstalled = false;
+let puterDisabledReason = '';
+
+function setModeBanner(mode, reason) {
+  const banner = document.getElementById('modeBanner');
+  if (!banner) {
+    return;
+  }
+
+  if (mode === 'local') {
+    banner.classList.remove('mode-cloud');
+    banner.classList.add('mode-local');
+    banner.textContent = reason
+      ? `Storage mode: Local fallback (${reason})`
+      : 'Storage mode: Local fallback';
+    return;
+  }
+
+  banner.classList.remove('mode-local');
+  banner.classList.add('mode-cloud');
+  banner.textContent = 'Storage mode: Cloud (Puter)';
+}
 
 function setLoadingProgress(percent, label) {
   const boundedPercent = Math.max(0, Math.min(100, Math.round(percent)));
@@ -42,6 +60,231 @@ function hideLoadingOverlay() {
   setTimeout(() => {
     overlay.style.display = 'none';
   }, 260);
+}
+
+function sanitizeFileName(name) {
+  return (name || 'file')
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/_+/g, '_');
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function isGithubDevHost() {
+  if (typeof window === 'undefined' || !window.location) {
+    return false;
+  }
+
+  const host = window.location.hostname || '';
+  return host.endsWith('.github.dev') || host.endsWith('.app.github.dev');
+}
+
+function disablePuterForSession(reason) {
+  if (!puterDisabledReason) {
+    puterDisabledReason = reason || 'Puter unavailable in this environment';
+    console.warn(`Puter disabled for this session: ${puterDisabledReason}`);
+    setModeBanner('local', puterDisabledReason);
+  }
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function downloadBlobLocally(blob, filename) {
+  const objectUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = objectUrl;
+  anchor.download = filename;
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+  URL.revokeObjectURL(objectUrl);
+}
+
+function pickLocalFile(accept = '.json') {
+  return new Promise((resolve, reject) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = accept;
+    input.style.display = 'none';
+
+    input.onchange = () => {
+      const file = input.files && input.files[0] ? input.files[0] : null;
+      document.body.removeChild(input);
+      if (!file) {
+        reject(new Error('No file selected'));
+        return;
+      }
+      resolve(file);
+    };
+
+    document.body.appendChild(input);
+    input.click();
+  });
+}
+
+function resolvePuterReadUrl(item, fallbackPath) {
+  if (!item) {
+    return fallbackPath;
+  }
+
+  return item.readURL || item.read_url || item.readUrl || item.path || fallbackPath;
+}
+
+function installPuterSocketWarningWorkaround() {
+  if (puterSocketWarningWorkaroundInstalled || typeof window === 'undefined' || !window.WebSocket) {
+    return;
+  }
+
+  const NativeWebSocket = window.WebSocket;
+
+  // Avoid browser console noise caused by closing a CONNECTING puter socket.io websocket.
+  window.WebSocket = function patchedWebSocket(url, protocols) {
+    const ws = protocols === undefined
+      ? new NativeWebSocket(url)
+      : new NativeWebSocket(url, protocols);
+
+    try {
+      const isPuterSocket = typeof url === 'string' && url.includes('wss://api.puter.com/socket.io/');
+      if (isPuterSocket) {
+        const nativeClose = ws.close.bind(ws);
+        ws.close = function patchedClose(code, reason) {
+          if (ws.readyState === NativeWebSocket.CONNECTING) {
+            return;
+          }
+          return nativeClose(code, reason);
+        };
+      }
+    } catch (error) {
+      console.warn('Puter websocket workaround setup failed:', error);
+    }
+
+    return ws;
+  };
+
+  window.WebSocket.prototype = NativeWebSocket.prototype;
+  window.WebSocket.CONNECTING = NativeWebSocket.CONNECTING;
+  window.WebSocket.OPEN = NativeWebSocket.OPEN;
+  window.WebSocket.CLOSING = NativeWebSocket.CLOSING;
+  window.WebSocket.CLOSED = NativeWebSocket.CLOSED;
+
+  puterSocketWarningWorkaroundInstalled = true;
+}
+
+function loadPuterSDK() {
+  if (window.puter) {
+    return Promise.resolve(window.puter);
+  }
+
+  installPuterSocketWarningWorkaround();
+
+  if (puterLoadPromise) {
+    return puterLoadPromise;
+  }
+
+  puterLoadPromise = new Promise((resolve, reject) => {
+    const existingScript = document.querySelector('script[data-sdk="puter"]');
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve(window.puter), { once: true });
+      existingScript.addEventListener('error', () => reject(new Error('Failed to load Puter SDK')), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://js.puter.com/v2/';
+    script.async = true;
+    script.dataset.sdk = 'puter';
+    script.onload = () => resolve(window.puter);
+    script.onerror = () => reject(new Error('Failed to load Puter SDK'));
+    document.head.appendChild(script);
+  });
+
+  return puterLoadPromise;
+}
+
+async function showPuterSavePicker(content, suggestedName) {
+  if (!window.puter || !window.puter.ui || typeof window.puter.ui.showSaveFilePicker !== 'function') {
+    throw new Error('Puter save picker is not available');
+  }
+
+  const savedItem = await window.puter.ui.showSaveFilePicker(content, suggestedName);
+  if (!savedItem || typeof savedItem !== 'object') {
+    throw new Error('Save cancelled');
+  }
+
+  return savedItem;
+}
+
+async function showPuterOpenPicker() {
+  if (!window.puter || !window.puter.ui || typeof window.puter.ui.showOpenFilePicker !== 'function') {
+    throw new Error('Puter open picker is not available');
+  }
+
+  const picked = await window.puter.ui.showOpenFilePicker({ multiple: false });
+  if (!picked) {
+    throw new Error('Open cancelled');
+  }
+
+  return Array.isArray(picked) ? picked[0] : picked;
+}
+
+async function ensurePuterAuth() {
+  if (puterDisabledReason) {
+    throw new Error(puterDisabledReason);
+  }
+
+  if (isGithubDevHost()) {
+    disablePuterForSession('Puter popup auth is restricted on github.dev; using local fallback.');
+    throw new Error(puterDisabledReason);
+  }
+
+  if (puterAuthReady) {
+    return;
+  }
+
+  await loadPuterSDK();
+
+  if (!window.puter) {
+    throw new Error('Puter.js is not available');
+  }
+
+  if (window.puter.ui && typeof window.puter.ui.authenticateWithPuter === 'function') {
+    await window.puter.ui.authenticateWithPuter();
+  }
+
+  puterAuthReady = true;
+  setModeBanner('cloud');
+}
+
+async function shouldUsePuter() {
+  try {
+    await ensurePuterAuth();
+    return true;
+  } catch (error) {
+    const message = error && error.message ? error.message : String(error);
+    if (/cancel/i.test(message)) {
+      throw error;
+    }
+
+    if (!puterDisabledReason) {
+      disablePuterForSession(message);
+    }
+    return false;
+  }
 }
 
 // Initialize IndexedDB
@@ -129,7 +372,7 @@ function initializeDrone() {
 // Room handlers
 function setupRoomHandlers() {
   roomJoinResolved = false;
-  const room = drone.subscribe('catchat1');
+  const room = drone.subscribe('catchat3');
 
   room.on('open', error => {
     if (error) {
@@ -202,7 +445,7 @@ function sendMessage() {
   };
 
   addMessageToDOM(messageData); // Add immediately to DOM
-  drone.publish({ room: 'catchat1', message: messageData });
+  drone.publish({ room: 'catchat3', message: messageData });
   storeMessage(messageData);
   input.value = '';
   isSendingMessage = false;
@@ -272,7 +515,7 @@ function loadMessages() {
   });
 }
 
-// File handling with Supabase
+// File handling with Puter.js
 async function handleFileUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -283,42 +526,49 @@ async function handleFileUpload(event) {
   document.getElementById('messages').appendChild(uploadStatus);
 
   try {
-    const fileName = `${Date.now()}-${file.name}`;
-    const { data, error } = await supabaseClient.storage
-      .from('catchat-uploads')
-      .upload(fileName, file);
+    let fileUrl = '';
+    const usePuter = await shouldUsePuter();
+    if (usePuter) {
+      const fileName = `${Date.now()}-${sanitizeFileName(file.name)}`;
+      const uploadedItem = await showPuterSavePicker(file, fileName);
+      fileUrl = resolvePuterReadUrl(uploadedItem, '');
+    } else {
+      if (file.size > 450 * 1024) {
+        throw new Error('Local fallback supports files up to 450KB.');
+      }
+      fileUrl = await fileToDataUrl(file);
+    }
 
-    if (error) throw error;
-
-    // Supabase JS v2 now returns the public URL directly in the upload response data
-    // Or you can still get it like this if needed:
-    const { data: { publicUrl } } = supabaseClient.storage
-      .from('catchat-uploads')
-      .getPublicUrl(fileName);
+    if (!fileUrl) {
+      throw new Error('Could not get a usable file URL');
+    }
 
     uploadStatus.remove();
+    const safeName = escapeHtml(file.name);
 
     const messageData = {
       id: Date.now(),
       text: file.type.startsWith('image/')
-        ? `<img src="${publicUrl}" alt="${file.name}" style="max-width: 200px;">`
-        : `<a href="${publicUrl}" target="_blank">${file.name}</a>`,
+        ? `<img src="${fileUrl}" alt="${safeName}" style="max-width: 200px;">`
+        : `<a href="${fileUrl}" target="_blank" download="${safeName}">${safeName}</a>`,
       sender: myNickname,
       timestamp: new Date().toISOString(),
       isLocal: true // Mark as local
     };
 
     addMessageToDOM(messageData);
-    drone.publish({ room: 'catchat1', message: messageData });
+    drone.publish({ room: 'catchat3', message: messageData });
     storeMessage(messageData);
   } catch (error) {
     uploadStatus.textContent = `Upload failed: ${error.message}`;
     setTimeout(() => uploadStatus.remove(), 3000);
+  } finally {
+    event.target.value = '';
   }
 }
 
-// Backup functions with Supabase
-async function uploadDatabaseToSupabase() {
+// Backup functions with Puter.js
+async function uploadDatabaseToPuter() {
   if (!db) {
     alert("Database not ready");
     return;
@@ -335,18 +585,24 @@ async function uploadDatabaseToSupabase() {
     const request = store.getAll();
 
     request.onsuccess = async () => {
-      status.textContent = "Uploading backup...";
       const messages = request.result;
-      const blob = new Blob([JSON.stringify(messages)], { type: 'application/json' });
-      const fileName = `backup-${Date.now()}.json`;
-
-      const { error } = await supabaseClient.storage
-        .from('catchat-uploads')
-        .upload(fileName, blob);
-
-      if (error) throw error;
-
-      status.textContent = "Backup successful!";
+      const backupBlob = new Blob([JSON.stringify(messages, null, 2)], { type: 'application/json' });
+      const backupName = `catchat-backup-${Date.now()}.json`;
+      const usePuter = await shouldUsePuter();
+      if (usePuter) {
+        status.textContent = "Uploading backup...";
+        const backupItem = await showPuterSavePicker(backupBlob, backupName);
+        const savedPath = backupItem.path || backupName;
+        const savedUrl = resolvePuterReadUrl(backupItem, '');
+        localStorage.setItem('catchat3-last-backup-path', savedPath);
+        if (savedUrl) {
+          localStorage.setItem('catchat3-last-backup-url', savedUrl);
+        }
+        status.textContent = `Backup successful: ${savedPath}`;
+      } else {
+        downloadBlobLocally(backupBlob, backupName);
+        status.textContent = `Backup downloaded locally: ${backupName}`;
+      }
       setTimeout(() => status.remove(), 3000);
     };
 
@@ -360,19 +616,38 @@ async function uploadDatabaseToSupabase() {
   }
 }
 
-async function loadDatabaseFromSupabase() {
-  const url = prompt("Enter Supabase file URL:");
-  if (!url) return;
-
+async function loadDatabaseFromPuter() {
   const status = document.createElement('div');
   status.className = 'restore-status';
   status.textContent = "Restoring backup...";
   document.getElementById('messages').appendChild(status);
 
   try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Failed to fetch backup');
-    const messages = await response.json();
+    let backupText = '';
+    const usePuter = await shouldUsePuter();
+    if (usePuter) {
+      const pickedBackup = await showPuterOpenPicker();
+      const backupUrl = resolvePuterReadUrl(
+        pickedBackup,
+        localStorage.getItem('catchat3-last-backup-url') || ''
+      );
+
+      if (!backupUrl) {
+        throw new Error('Could not open selected backup file');
+      }
+
+      const backupResponse = await fetch(backupUrl);
+      if (!backupResponse.ok) {
+        throw new Error('Failed to download backup file');
+      }
+
+      backupText = await backupResponse.text();
+    } else {
+      const localFile = await pickLocalFile('.json,application/json');
+      backupText = await localFile.text();
+    }
+
+    const messages = JSON.parse(backupText);
 
     const transaction = db.transaction(['messages'], 'readwrite');
     const store = transaction.objectStore('messages');
@@ -682,13 +957,17 @@ function setupEventListeners() {
   inputField.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
   fileUploadButton.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', (e) => handleFileUpload(e));
-  uploadButton.addEventListener('click', () => uploadDatabaseToSupabase());
-  downloadButton.addEventListener('click', () => loadDatabaseFromSupabase());
+  uploadButton.addEventListener('click', () => uploadDatabaseToPuter());
+  downloadButton.addEventListener('click', () => loadDatabaseFromPuter());
   reconnectButton.addEventListener('click', () => initializeApp());
 }
 
 // Start the app
 document.addEventListener('DOMContentLoaded', () => {
+  setModeBanner('cloud');
+  if (isGithubDevHost()) {
+    setModeBanner('local', 'github.dev auth restrictions');
+  }
   setLoadingProgress(12, 'Preparing app...');
   initializeApp();
   setupKaiOSNavigation();

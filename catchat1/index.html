@@ -22,6 +22,7 @@
   </div>
   <div id="app">
     <div id="connectionStatus">Connecting to chat...</div>
+    <div id="modeBanner" class="mode-banner mode-cloud" aria-live="polite">Storage mode: Cloud (Puter)</div>
     <button id="reconnectButton" class="kaios-button" style="display: none;">🔄</button>
     
     <div id="chatContainer">
@@ -29,8 +30,8 @@
         </div>
 
       <div id="inputContainer">
-        <button id="uploadButton" class="kaios-icon-button" title="Upload Database">💾</button>
-        <button id="downloadButton" class="kaios-icon-button" title="Download Database">📥</button>
+        <button id="uploadButton" class="kaios-icon-button" title="Create Puter Backup" aria-label="Create Puter Backup">💾</button>
+        <button id="downloadButton" class="kaios-icon-button" title="Restore Puter Backup" aria-label="Restore Puter Backup">📥</button>
         <button id="fileUploadButton" class="kaios-icon-button" title="Upload File">📤</button>
   <input type="file" id="fileInput" style="display:none" />
         
@@ -42,7 +43,6 @@
   </div>
 
   <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <div id="softkey">
     <span id="left"></span>
     <span id="center"></span>
