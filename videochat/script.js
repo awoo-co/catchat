@@ -3,8 +3,42 @@ const VIDEOCHAT_URL = 'https://catchat-videochat.vercel.app';
 const openButton = document.getElementById('openVideochat');
 const backButton = document.getElementById('goBack');
 
+function setLoadingProgress(percent, label) {
+	const boundedPercent = Math.max(0, Math.min(100, Math.round(percent)));
+	const loadingBar = document.getElementById('loadingBar');
+	const loadingPercent = document.getElementById('loadingPercent');
+	const loadingLabel = document.getElementById('loadingLabel');
+
+	if (loadingBar) {
+		loadingBar.style.width = `${boundedPercent}%`;
+	}
+
+	if (loadingPercent) {
+		loadingPercent.textContent = `${boundedPercent}%`;
+	}
+
+	if (loadingLabel && label) {
+		loadingLabel.textContent = label;
+	}
+}
+
+function hideLoadingOverlay() {
+	const overlay = document.getElementById('loadingOverlay');
+	if (!overlay) return;
+
+	overlay.classList.add('hidden');
+	setTimeout(() => {
+		overlay.style.display = 'none';
+	}, 260);
+}
+
 function openVideochat() {
-	window.location.href = VIDEOCHAT_URL;
+	setLoadingProgress(20, 'Opening video chat...');
+	setTimeout(() => setLoadingProgress(55, 'Preparing redirect...'), 120);
+	setTimeout(() => {
+		setLoadingProgress(100, 'Redirecting...');
+		window.location.href = VIDEOCHAT_URL;
+	}, 250);
 }
 
 openButton.addEventListener('click', openVideochat);
@@ -61,5 +95,13 @@ kaiosButtons.forEach((button, index) => {
 
 window.addEventListener('keydown', handleKaiOSNavigation);
 window.addEventListener('load', () => {
+	setLoadingProgress(15, 'Loading page...');
+	setTimeout(() => setLoadingProgress(45, 'Preparing controls...'), 90);
+	setTimeout(() => setLoadingProgress(75, 'Almost ready...'), 180);
+	setTimeout(() => {
+		setLoadingProgress(100, 'Ready');
+		hideLoadingOverlay();
+	}, 300);
+
 	focusButtonAt(focusIndex);
 });
