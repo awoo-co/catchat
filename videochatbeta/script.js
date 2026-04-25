@@ -1,7 +1,7 @@
 const AGORA_CONFIG = {
 	appId: '5f10b8d038114e4494671eba6636a671',
 	channel: 'catchat',
-	token: '3eabec5e3af84fe09409af2300f9ad4e'
+	token: null
 };
 
 const statusEl = document.getElementById('status');
