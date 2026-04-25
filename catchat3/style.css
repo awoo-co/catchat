@@ -158,9 +158,9 @@ md-filled-text-field {
   display: none !important;
 }
 
-/* KaiOS-optimized buttons */
-.kaios-button,
-.kaios-icon-button {
+/* navigation-optimized buttons */
+.app-button,
+.icon-button {
   padding: 10px 16px;
   font-size: 14px;
   font-weight: 500;
@@ -173,32 +173,32 @@ md-filled-text-field {
   outline: none;
 }
 
-.kaios-icon-button {
+.icon-button {
   padding: 8px 12px;
   font-size: 18px;
   min-width: 44px;
 }
 
-/* KaiOS focus state for D-pad navigation */
-.kaios-button:focus,
-.kaios-icon-button:focus {
+/* navigation focus state for D-pad navigation */
+.app-button:focus,
+.icon-button:focus {
   outline: 3px solid #ff6600;
   outline-offset: 2px;
   transform: scale(1.05);
 }
 
-.kaios-button:hover,
-.kaios-icon-button:hover {
+.app-button:hover,
+.icon-button:hover {
   background-color: #5ab05a;
 }
 
-.kaios-button:active,
-.kaios-icon-button:active {
+.app-button:active,
+.icon-button:active {
   transform: scale(0.98);
 }
 
-/* KaiOS-optimized input */
-.kaios-input {
+/* navigation-optimized input */
+.chat-input {
   flex-grow: 1;
   padding: 10px;
   font-size: 14px;
@@ -209,13 +209,13 @@ md-filled-text-field {
   outline: none;
 }
 
-.kaios-input:focus {
+.chat-input:focus {
   outline: 3px solid #ff6600;
   outline-offset: 2px;
   border-color: #ff6600;
 }
 
-.kaios-input::placeholder {
+.chat-input::placeholder {
   color: #999;
 }
 
@@ -235,14 +235,14 @@ md-outlined-button {
     border-radius: 0;
   }
   
-  .kaios-button,
-  .kaios-icon-button {
+  .app-button,
+  .icon-button {
     padding: 8px 12px;
     font-size: 13px;
   }
 }
 
-/* KaiOS feature phones (320px width) */
+/* navigation compact screens (320px width) */
 @media (display-mode: standalone) and (max-width: 320px) {
   #app {
     width: 100%;
@@ -250,14 +250,14 @@ md-outlined-button {
     height: 100%;
   }
   
-  .kaios-button,
-  .kaios-icon-button {
+  .app-button,
+  .icon-button {
     padding: 6px 10px;
     font-size: 12px;
     min-width: 40px;
   }
   
-  .kaios-icon-button {
+  .icon-button {
     padding: 6px 8px;
     font-size: 16px;
   }

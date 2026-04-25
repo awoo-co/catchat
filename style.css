@@ -93,7 +93,7 @@ p {
     gap: 1.5rem;
 }
 
-/* KaiOS-optimized buttons */
+/* App buttons */
 .button-group {
     display: flex;
     flex-direction: column;
@@ -101,7 +101,7 @@ p {
     margin-top: 20px;
 }
 
-.kaios-button {
+.app-button {
     padding: 14px 20px;
     font-size: 16px;
     font-weight: 500;
@@ -115,31 +115,30 @@ p {
     outline: none;
 }
 
-.kaios-button.danger {
+.app-button.danger {
     background-color: #7a1f1f;
 }
 
-/* KaiOS focus state for D-pad navigation */
-.kaios-button:focus {
+.app-button:focus {
     outline: 3px solid #ff6600;
     outline-offset: 2px;
     transform: scale(1.05);
     background-color: #1a5a1a;
 }
 
-.kaios-button.danger:focus {
+.app-button.danger:focus {
     background-color: #9a2b2b;
 }
 
-.kaios-button:hover {
+.app-button:hover {
     background-color: #1a5a1a;
 }
 
-.kaios-button.danger:hover {
+.app-button.danger:hover {
     background-color: #9a2b2b;
 }
 
-.kaios-button:active {
+.app-button:active {
     transform: scale(0.98);
 }
 
@@ -150,10 +149,8 @@ md-text-button {
     display: none !important;
 }
 
-/* Detect KaiOS and show appropriate UI */
 @media (display-mode: standalone) and (max-width: 320px) {
-    /* KaiOS feature phones typically have 320px width */
-    .kaios-button {
+    .app-button {
         padding: 12px 16px;
         font-size: 14px;
         min-width: 160px;
@@ -177,7 +174,7 @@ md-text-button {
         gap: 10px;
     }
     
-    .kaios-button {
+    .app-button {
         min-width: 160px;
     }
 }
@@ -185,7 +182,7 @@ md-text-button {
 /* Browser optimizations */
 @media (hover: hover) and (pointer: fine) {
     /* Only on devices with hover and fine pointer */
-    .kaios-button:hover {
+    .app-button:hover {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
     }
 }

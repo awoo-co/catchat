@@ -1,6 +1,12 @@
-const VIDEOCHAT_URL = 'https://catchat-videochat.vercel.app';
+const ROOM_URLS = {
+	room1: '../videochatroom1/',
+	room2: '../videochatroom2/',
+	room3: '../videochatroom3/'
+};
 
-const openButton = document.getElementById('openVideochat');
+const openRoom1Button = document.getElementById('openRoom1');
+const openRoom2Button = document.getElementById('openRoom2');
+const openRoom3Button = document.getElementById('openRoom3');
 const backButton = document.getElementById('goBack');
 
 function setLoadingProgress(percent, label) {
@@ -32,68 +38,19 @@ function hideLoadingOverlay() {
 	}, 260);
 }
 
-function openVideochat() {
-	setLoadingProgress(20, 'Opening video chat...');
+function openRoom(roomLabel, roomUrl) {
+	setLoadingProgress(20, `Opening ${roomLabel}...`);
 	setTimeout(() => setLoadingProgress(55, 'Preparing redirect...'), 120);
 	setTimeout(() => {
 		setLoadingProgress(100, 'Redirecting...');
-		window.location.href = VIDEOCHAT_URL;
+		window.location.href = roomUrl;
 	}, 250);
 }
 
-openButton.addEventListener('click', openVideochat);
+openRoom1Button.addEventListener('click', () => openRoom('Room 1', ROOM_URLS.room1));
+openRoom2Button.addEventListener('click', () => openRoom('Room 2', ROOM_URLS.room2));
+openRoom3Button.addEventListener('click', () => openRoom('Room 3', ROOM_URLS.room3));
 backButton.addEventListener('click', () => window.history.back());
-
-const kaiosButtons = [openButton, backButton];
-let focusIndex = 0;
-
-function focusButtonAt(index) {
-	const clampedIndex = (index + kaiosButtons.length) % kaiosButtons.length;
-	focusIndex = clampedIndex;
-	kaiosButtons[clampedIndex].focus();
-}
-
-function handleKaiOSNavigation(event) {
-	const key = event.key;
-	const keyCode = event.keyCode;
-
-	const isUp = key === 'ArrowUp' || key === 'Up' || keyCode === 38;
-	const isDown = key === 'ArrowDown' || key === 'Down' || keyCode === 40;
-	const isSelect = key === 'Enter' || keyCode === 13;
-	const isSoftLeft = key === 'SoftLeft' || key === 'F1' || keyCode === 112;
-	const isSoftRight = key === 'SoftRight' || key === 'F2' || keyCode === 113;
-
-	if (isUp) {
-		event.preventDefault();
-		focusButtonAt(focusIndex - 1);
-		return;
-	}
-
-	if (isDown) {
-		event.preventDefault();
-		focusButtonAt(focusIndex + 1);
-		return;
-	}
-
-	if (isSelect || isSoftLeft) {
-		event.preventDefault();
-		kaiosButtons[focusIndex].click();
-		return;
-	}
-
-	if (isSoftRight) {
-		event.preventDefault();
-		window.history.back();
-	}
-}
-
-kaiosButtons.forEach((button, index) => {
-	button.addEventListener('focus', () => {
-		focusIndex = index;
-	});
-});
-
-window.addEventListener('keydown', handleKaiOSNavigation);
 window.addEventListener('load', () => {
 	setLoadingProgress(15, 'Loading page...');
 	setTimeout(() => setLoadingProgress(45, 'Preparing controls...'), 90);
@@ -102,6 +59,4 @@ window.addEventListener('load', () => {
 		setLoadingProgress(100, 'Ready');
 		hideLoadingOverlay();
 	}, 300);
-
-	focusButtonAt(focusIndex);
 });

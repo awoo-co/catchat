@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>videochat beta - room 1</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="loadingOverlay" aria-live="polite" aria-label="Loading progress">
+        <div class="loading-content">
+            <div id="loadingLabel">Loading Room 1...</div>
+            <div id="loadingTrack">
+                <div id="loadingBar"></div>
+            </div>
+            <div id="loadingPercent">0%</div>
+        </div>
+    </div>
+    <main class="app-shell">
+        <h1>Videochat Beta Room 1</h1>
+        <p class="subtitle">Comzy 1:1 video chat (Room 1)</p>
+
+        <section class="setup" aria-label="Call setup">
+            <label class="field">
+                <span>API Key</span>
+                <input id="apiKey" type="text" placeholder="Paste your Comzy API key" autocomplete="off">
+            </label>
+            <label class="field">
+                <span>Your ID</span>
+                <input id="callerId" type="text" placeholder="ex: alex" autocomplete="off">
+            </label>
+            <label class="field">
+                <span>Contact ID</span>
+                <input id="calleeId" type="text" placeholder="ex: sam" autocomplete="off">
+            </label>
+        </section>
+
+        <div id="status" class="status" aria-live="polite">Disconnected</div>
+
+        <div class="controls">
+            <button id="joinBtn" class="control-btn">Start Call</button>
+            <button id="leaveBtn" class="control-btn secondary" disabled>End Call</button>
+            <button id="toggleMicBtn" class="control-btn secondary" disabled>Mute Mic</button>
+            <button id="toggleCamBtn" class="control-btn secondary" disabled>Turn Off Cam</button>
+        </div>
+
+        <section id="videoGrid" class="video-grid" aria-label="Video chat area">
+            <div class="video-tile" id="localContainer">
+                <video id="localVideo" class="video-player" autoplay muted playsinline></video>
+                <span class="video-label">You</span>
+            </div>
+            <div class="video-tile" id="remoteContainer">
+                <video id="remoteVideo" class="video-player" autoplay playsinline></video>
+                <span class="video-label">Contact</span>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://sdk.comzy.io/comzy-web.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

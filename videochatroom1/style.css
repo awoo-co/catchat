@@ -17,6 +17,36 @@ body {
     color: #c5c5c5;
 }
 
+.setup {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    margin: 14px 0;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    color: #d3d3d3;
+}
+
+.field input {
+    background: #1b1b1b;
+    border: 1px solid #343434;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 14px;
+    padding: 9px 10px;
+}
+
+.field input:focus {
+    outline: 3px solid #ff6600;
+    outline-offset: 1px;
+    border-color: #ff6600;
+}
+
 .status {
     margin: 14px auto 10px;
     width: fit-content;
@@ -65,7 +95,7 @@ body {
 .video-grid {
     display: grid;
     gap: 12px;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
 }
 
 .video-tile,
@@ -91,12 +121,6 @@ body {
     background: rgba(0, 0, 0, 0.65);
     border-radius: 999px;
     padding: 4px 8px;
-}
-
-.remote-players {
-    display: grid;
-    gap: 12px;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 }
 
 #loadingOverlay {
@@ -168,7 +192,15 @@ p{
         padding: 14px 10px 16px;
     }
 
+    .setup {
+        grid-template-columns: 1fr;
+    }
+
     .control-btn {
         min-width: 46%;
+    }
+
+    .video-grid {
+        grid-template-columns: 1fr;
     }
 }

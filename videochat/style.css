@@ -77,7 +77,7 @@ p{
     margin: 20px auto 0;
 }
 
-.kaios-button {
+.action-button {
     padding: 12px 18px;
     min-width: 180px;
     font-size: 14px;
@@ -89,11 +89,11 @@ p{
     cursor: pointer;
 }
 
-.kaios-button.secondary {
+.action-button.secondary {
     background-color: #333333;
 }
 
-.kaios-button:focus {
+.action-button:focus {
     outline: 3px solid #ff6600;
     outline-offset: 2px;
     transform: scale(1.03);
