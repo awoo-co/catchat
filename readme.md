@@ -1,3 +1,5 @@
+# Read Me
+the videochat you were using before is no longer available. for right now until i figure out a replacement sdk.
 # catchat
 # features
 * not using firebase
