@@ -4,22 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catchat</title>
-  <script type="module" src="https://esm.run/@material/web/all.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100" />
   <link rel="stylesheet" href="style.css">
    <link rel="shortcut icon" href="https://awoo-co.github.io/cdn/favicon.ico" type="image/x-icon">
 </head>
 <body class="dark-mode">
-  <div id="loadingOverlay" aria-live="polite" aria-label="Loading progress">
-    <div class="loading-content">
-      <div id="loadingLabel">Loading chat...</div>
-      <div id="loadingTrack">
-        <div id="loadingBar"></div>
-      </div>
-      <div id="loadingPercent">0%</div>
-    </div>
-  </div>
   <div id="app">
     <div id="connectionStatus">Connecting to chat...</div>
     <button id="reconnectButton" class="app-button" style="display: none;">🔄</button>
@@ -42,6 +30,7 @@
   </div>
 
   <script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="script.js"></script>
 </body>
 </html>

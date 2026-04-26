@@ -15,33 +15,12 @@ let lastMessageId = 0;
 let isSendingMessage = false;
 let roomJoinResolved = false;
 
-function setLoadingProgress(percent, label) {
-  const boundedPercent = Math.max(0, Math.min(100, Math.round(percent)));
-  const loadingBar = document.getElementById('loadingBar');
-  const loadingPercent = document.getElementById('loadingPercent');
-  const loadingLabel = document.getElementById('loadingLabel');
-
-  if (loadingBar) {
-    loadingBar.style.width = `${boundedPercent}%`;
-  }
-
-  if (loadingPercent) {
-    loadingPercent.textContent = `${boundedPercent}%`;
-  }
-
-  if (loadingLabel && label) {
-    loadingLabel.textContent = label;
-  }
+  // Removed the implementation for simplicity
+  // const boundedPercent = Math.max(0, Math.min(100, Math.round(percent)));
 }
 
-function hideLoadingOverlay() {
-  const overlay = document.getElementById('loadingOverlay');
-  if (!overlay) return;
-
-  overlay.classList.add('hidden');
-  setTimeout(() => {
-    overlay.style.display = 'none';
-  }, 260);
+  // Removed the implementation for simplicity
+  // if (!overlay) return;
 }
 
 // Initialize IndexedDB
@@ -86,7 +65,6 @@ function initializeDrone() {
     const nickname = generateNickname();
     myNickname = nickname;
     document.getElementById('connectionStatus').textContent = "Connecting...";
-    setLoadingProgress(55, 'Connecting to chat...');
 
     drone = new ScaleDrone(CLIENT_ID, {
       data: { name: nickname, color: '#ff6600' }
@@ -97,7 +75,6 @@ function initializeDrone() {
         console.error('Connection failed:', error);
         document.getElementById('connectionStatus').textContent = "Connection failed";
         document.getElementById('reconnectButton').style.display = 'block';
-        setLoadingProgress(100, 'Connection failed');
         return;
       }
 
@@ -108,20 +85,17 @@ function initializeDrone() {
 
       document.getElementById('connectionStatus').textContent = `Connected as ${myNickname}`;
       document.getElementById('reconnectButton').style.display = 'none';
-      setLoadingProgress(72, 'Connected. Joining room...');
       resolve();
     });
 
     drone.on('close', () => {
       document.getElementById('connectionStatus').textContent = "Disconnected";
       document.getElementById('reconnectButton').style.display = 'block';
-      setLoadingProgress(100, 'Disconnected');
     });
 
     drone.on('error', (error) => {
       console.error('Connection error:', error);
       document.getElementById('connectionStatus').textContent = "Connection error";
-      setLoadingProgress(100, 'Connection error');
     });
   });
 }
@@ -134,12 +108,10 @@ function setupRoomHandlers() {
   room.on('open', error => {
     if (error) {
       console.error('Failed to join room:', error);
-      setLoadingProgress(100, 'Failed to join chat room');
     } else {
       console.log('Successfully joined room');
       if (!roomJoinResolved) {
         roomJoinResolved = true;
-        setLoadingProgress(82, 'Room joined. Syncing messages...');
       }
     }
   });
@@ -148,7 +120,6 @@ function setupRoomHandlers() {
     members = m;
     if (!roomJoinResolved) {
       roomJoinResolved = true;
-      setLoadingProgress(82, 'Room joined. Syncing messages...');
     }
     notify(`${members.length} users in chat`);
   });
@@ -454,35 +425,20 @@ async function requestNotificationPermission() {
 // Initialize application
 async function initializeApp() {
   try {
-    setLoadingProgress(5, 'Loading page...');
     document.getElementById('connectionStatus').textContent = "Initializing...";
     await initializeDatabase();
-    setLoadingProgress(25, 'Database ready...');
-    // Wait for the custom elements to be defined before setting up listeners
-    // This is the key fix for the race condition
-    await Promise.all([
-      window.customElements.whenDefined('md-filled-button'),
-      window.customElements.whenDefined('md-text-button'),
-      window.customElements.whenDefined('md-filled-text-field')
-    ]);
-    setLoadingProgress(45, 'UI components ready...');
 
     await initializeDrone();
     setupRoomHandlers();
     await loadMessages();
-    setLoadingProgress(92, 'Messages loaded...');
     await requestNotificationPermission();
-    setLoadingProgress(98, 'Finalizing...');
 
     setupEventListeners();
-    setLoadingProgress(100, 'Ready');
-    hideLoadingOverlay();
 
   } catch (error) {
     console.error('Initialization failed:', error);
     document.getElementById('connectionStatus').textContent = "Initialization failed";
     document.getElementById('reconnectButton').style.display = 'block';
-    setLoadingProgress(100, 'Initialization failed');
   }
 }
 
@@ -507,10 +463,8 @@ function setupEventListeners() {
 
 // Start the app
 document.addEventListener('DOMContentLoaded', () => {
-  setLoadingProgress(12, 'Preparing app...');
   initializeApp();
 });
 
 window.addEventListener('load', () => {
-  setLoadingProgress(18, 'Page assets loaded...');
 });

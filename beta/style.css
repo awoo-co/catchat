@@ -5,91 +5,25 @@
   box-sizing: border-box;
 }
 
-/* Material Design Dark Theme Variables */
 :root {
-  /* Main Colors */
-  --md-sys-color-primary: #86d289; /* A light green for primary actions */
-  --md-sys-color-on-primary: #00390f;
-  --md-sys-color-surface: #1a1a1a;
-  --md-sys-color-on-surface: #e0e0e0;
-  --md-sys-color-background: #181818;
-  --md-sys-color-on-background: #e0e0e0;
-
-  /* Button Colors */
-  --md-text-button-container-color: transparent;
-  --md-text-button-label-text-color: #ffffff;
-  --md-filled-button-container-color: #28a745;
-  --md-filled-button-label-text-color: #ffffff;
-  --md-filled-button-hover-state-layer-color: #ffffff;
-  --md-filled-button-hover-state-layer-opacity: 0.1;
-
-  /* Input Field Colors */
-  --md-sys-color-surface-container-highest: #333333; /* For the input field background */
-  --md-sys-color-on-surface-variant: #e0e0e0; /* For the input placeholder text */
-  --md-sys-color-outline: #555555;
+  --app-primary: #86d289;
+  --app-primary-contrast: #00390f;
+  --app-surface: #1a1a1a;
+  --app-foreground: #e0e0e0;
+  --app-background: #181818;
+  --app-button: #28a745;
+  --app-input-surface: #333333;
+  --app-input-border: #555555;
 }
 
 body {
-  font-family: 'Roboto', sans-serif; /* Use Material-compliant font */
-  background-color: var(--md-sys-color-background);
-  color: var(--md-sys-color-on-background);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: var(--app-background);
+  color: var(--app-foreground);
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-}
-
-#loadingOverlay {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(24, 24, 24, 0.92);
-  z-index: 9999;
-  transition: opacity 0.25s ease;
-}
-
-#loadingOverlay.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.loading-content {
-  width: min(420px, 86vw);
-  padding: 20px;
-  border-radius: 10px;
-  background: #222;
-  border: 1px solid #3a3a3a;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
-}
-
-#loadingLabel {
-  margin-bottom: 10px;
-  font-size: 14px;
-  color: #f0f0f0;
-}
-
-#loadingTrack {
-  width: 100%;
-  height: 10px;
-  border-radius: 999px;
-  background: #383838;
-  overflow: hidden;
-}
-
-#loadingBar {
-  width: 0%;
-  height: 100%;
-  background: linear-gradient(90deg, #5ab05a, #86d289);
-  transition: width 0.25s ease;
-}
-
-#loadingPercent {
-  margin-top: 8px;
-  font-size: 13px;
-  color: #cfcfcf;
-  text-align: right;
 }
 
 #app {
@@ -97,7 +31,7 @@ body {
   flex-direction: column;
   width: 80%;
   height: 90%;
-  background-color: var(--md-sys-color-surface);
+  background-color: var(--app-surface);
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
@@ -114,7 +48,7 @@ body {
   flex-grow: 1;
   overflow-y: auto;
   margin-bottom: 20px;
-  background-color: #333;
+  background-color: var(--app-input-surface);
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #444;
@@ -143,22 +77,14 @@ body {
   text-decoration: underline;
 }
 
-/* Input Container & Components Layout */
 #inputContainer {
   display: flex;
-  flex-wrap: wrap; /* Allow items to wrap on smaller screens */
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 10px;
   align-items: center;
 }
 
-/* Let the text field grow to take available space */
-md-filled-text-field {
-  flex-grow: 1;
-  display: none !important;
-}
-
-/* App buttons */
 .app-button,
 .icon-button {
   padding: 10px 16px;
@@ -166,8 +92,8 @@ md-filled-text-field {
   font-weight: 500;
   border: none;
   border-radius: 6px;
-  background-color: var(--md-sys-color-primary);
-  color: var(--md-sys-color-on-primary);
+  background-color: var(--app-button);
+  color: var(--app-primary-contrast);
   cursor: pointer;
   transition: all 0.2s ease;
   outline: none;
@@ -196,7 +122,6 @@ md-filled-text-field {
   transform: scale(0.98);
 }
 
-/* Chat input */
 .chat-input {
   flex-grow: 1;
   padding: 10px;
@@ -218,14 +143,6 @@ md-filled-text-field {
   color: #999;
 }
 
-/* Hide Material Design components */
-md-filled-button,
-md-text-button,
-md-outlined-button {
-  display: none !important;
-}
-
-/* Responsive Design */
 @media (max-width: 768px) {
   #app {
     width: 100%;
@@ -233,7 +150,7 @@ md-outlined-button {
     padding: 10px;
     border-radius: 0;
   }
-  
+
   .app-button,
   .icon-button {
     padding: 8px 12px;
@@ -241,26 +158,25 @@ md-outlined-button {
   }
 }
 
-/* Compact screens (320px width) */
 @media (display-mode: standalone) and (max-width: 320px) {
   #app {
     width: 100%;
     padding: 8px;
     height: 100%;
   }
-  
+
   .app-button,
   .icon-button {
     padding: 6px 10px;
     font-size: 12px;
     min-width: 40px;
   }
-  
+
   .icon-button {
     padding: 6px 8px;
     font-size: 16px;
   }
-  
+
   #inputContainer {
     gap: 6px;
   }

@@ -1,38 +1,21 @@
-function setLoadingProgress(percent, label) {
-  const boundedPercent = Math.max(0, Math.min(100, Math.round(percent)));
-  const loadingBar = document.getElementById('loadingBar');
-  const loadingPercent = document.getElementById('loadingPercent');
-  const loadingLabel = document.getElementById('loadingLabel');
+const roomMap = {
+  openRoom1: '../videochatroom1/',
+  openRoom2: '../videochatroom2/',
+  openRoom3: '../videochatroom3/'
+};
 
-  if (loadingBar) {
-    loadingBar.style.width = boundedPercent + '%';
-  }
-
-  if (loadingPercent) {
-    loadingPercent.textContent = boundedPercent + '%';
-  }
-
-  if (loadingLabel && label) {
-    loadingLabel.textContent = label;
-  }
+function navigateTo(url) {
+  window.location.href = url;
 }
 
-function hideLoadingOverlay() {
-  const overlay = document.getElementById('loadingOverlay');
-  if (!overlay) return;
-
-  overlay.classList.add('hidden');
-  setTimeout(() => {
-    overlay.style.display = 'none';
-  }, 260);
-}
-
-window.addEventListener('load', () => {
-  setLoadingProgress(15, 'Loading page...');
-  setTimeout(() => setLoadingProgress(45, 'Preparing controls...'), 90);
-  setTimeout(() => setLoadingProgress(75, 'Almost ready...'), 180);
-  setTimeout(() => {
-    setLoadingProgress(100, 'Ready');
-    hideLoadingOverlay();
-  }, 300);
+Object.entries(roomMap).forEach(([buttonId, url]) => {
+  const button = document.getElementById(buttonId);
+  if (button) {
+    button.addEventListener('click', () => navigateTo(url));
+  }
 });
+
+const backButton = document.getElementById('goBack');
+if (backButton) {
+  backButton.addEventListener('click', () => window.history.back());
+}
