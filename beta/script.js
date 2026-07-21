@@ -1,5 +1,8 @@
-const DEFAULT_BACKEND_HOST = 'jam-server.opah-pierce.ts.net:3001';
-const BACKEND_URL = window.CATCHAT_BACKEND_URL || `${window.location.protocol === 'https:' ? 'https' : 'http'}://${DEFAULT_BACKEND_HOST}`;
+const DEFAULT_BACKEND_HTTPS_ORIGIN = 'https://jam-server.opah-pierce.ts.net';
+const DEFAULT_BACKEND_HTTP_ORIGIN = 'http://jam-server.opah-pierce.ts.net:3001';
+const BACKEND_URL = window.CATCHAT_BACKEND_URL || (window.location.protocol === 'https:'
+  ? DEFAULT_BACKEND_HTTPS_ORIGIN
+  : DEFAULT_BACKEND_HTTP_ORIGIN);
 
 let myNickname = null;
 let socket = null;
