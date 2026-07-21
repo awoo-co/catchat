@@ -3,6 +3,7 @@ const DEFAULT_BACKEND_HTTP_ORIGIN = 'http://jam-server.opah-pierce.ts.net:3001';
 const BACKEND_URL = window.CATCHAT_BACKEND_URL || (window.location.protocol === 'https:'
   ? DEFAULT_BACKEND_HTTPS_ORIGIN
   : DEFAULT_BACKEND_HTTP_ORIGIN);
+const ROOM_NAME = 'catchat1';
 
 let myNickname = null;
 let socket = null;
@@ -67,7 +68,7 @@ function renderMessageBody(message) {
       return `<img src="${fileUrl}" alt="${fileName}" style="max-width: 200px; border-radius: 6px;">`;
     }
 
-    return `<a href="${fileUrl}" target="_blank" rel="noopener noreferrer">${fileName}</a>`;
+    return `<a href="${fileUrl}" download>${fileName}</a>`;
   }
 
   return escapeHtml(message.text || '');
@@ -165,6 +166,8 @@ function setupSocketHandlers() {
   });
 
   socket.on('chat:new', (message) => {
+    if (message && message.room && message.room !== ROOM_NAME) return;
+
     addMessageToDOM(message);
 
     if (message && message.sender && message.sender !== myNickname) {
@@ -208,7 +211,8 @@ function sendMessage() {
     id: Date.now(),
     text: messageText,
     sender: myNickname,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    room: ROOM_NAME
   };
 
   socket.emit('chat:send', messageData);
@@ -247,7 +251,8 @@ async function handleFileUpload(event) {
       text: `${file.name}`,
       fileUrl: result.url,
       fileName: result.name || file.name,
-      fileType: result.mime || file.type
+      fileType: result.mime || file.type,
+      room: ROOM_NAME
     });
 
     uploadStatus.remove();
