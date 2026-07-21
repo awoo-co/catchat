@@ -1,4 +1,4 @@
-const BACKEND_URL = window.CATCHAT_BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL = window.CATCHAT_BACKEND_URL || 'http://jam-server.opah-pierce.ts.net:3001';
 
 let myNickname = null;
 let socket = null;
