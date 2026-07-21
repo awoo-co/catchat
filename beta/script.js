@@ -15,13 +15,6 @@ let lastMessageId = 0;
 let isSendingMessage = false;
 let roomJoinResolved = false;
 
-  // Removed the implementation for simplicity
-  // const boundedPercent = Math.max(0, Math.min(100, Math.round(percent)));
-}
-
-  // Removed the implementation for simplicity
-  // if (!overlay) return;
-}
 
 // Initialize IndexedDB
 function initializeDatabase() {
